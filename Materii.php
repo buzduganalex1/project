@@ -90,8 +90,18 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Student") {
         $Request_query=new bdxe\SubjectQuery();
         $Requests=$Request_query->find();
 
+        $Subscription_query=new bdxe\SubscriptionQuery();
+        $Subscription=$Subscription_query->find();
+
         foreach($Requests as $request) {
             if($request->getCourseId()==$Course_id && $request->getStudentId()==$Student_id)
+            {
+                $Assigned=false;
+            }
+
+        }
+        foreach($Subscription as $subscription) {
+            if($subscription->getCourseId()==$Course_id && $subscription->getStudentId()==$Student_id)
             {
                 $Assigned=false;
             }

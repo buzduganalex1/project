@@ -365,3 +365,5 @@ ALTER TABLE pack_tb ADD CONSTRAINT pack_tb_fk_79b0a1
 
 ALTER TABLE pack_tb ADD CONSTRAINT pack_tb_fk_eb3ec5
     FOREIGN KEY (subscription_id) REFERENCES subscription_tb (id);
+
+select * from subject_tb;
