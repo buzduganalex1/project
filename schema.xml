@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<database name="default" namespace="bdxe" defaultIdMethod="native"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd">
+  <table name="student_tb" phpName="Student">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="name" type="Varchar" size="255"/>
+    <column name="email" type="Varchar" size="255"/>
+    <column name="Request" type="Integer" />
+    <column name="TeacherMessage" type="Varchar" size="255"/>
+    <column name="password" type="Varchar" size="255" required="true"/>
+    <unique name="IX_UQ_student_tb_email">
+      <unique-column name="email"/>
+    </unique>
+  </table>
+    <table name="Users" phpName="Users">
+        <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+        <column name="name" type="Varchar" size="255"/>
+        <column name="email" type="Varchar" size="255"/>
+        <column name="type" type="Varchar" size="255"/>
+        <column name="password" type="Varchar" size="255" required="true"/>
+    </table>
+  <table name="subscription_tb" phpName="Subscription">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="student_id" type="Integer"/>
+      <column name="course_id" type="Integer"/>
+    <foreign-key foreignTable="student_tb">
+      <reference foreign="id" local="student_id"/>
+    </foreign-key>
+      <foreign-key foreignTable="course_tb">
+          <reference foreign="id" local="course_id"/>
+      </foreign-key>
+  </table>
+    <table name="Request_tb" phpName="Request">
+        <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+        <column name="student_id" type="Integer"/>
+        <column name="course_id" type="Integer"/>
+        <foreign-key foreignTable="student_tb">
+            <reference foreign="id" local="student_id"/>
+        </foreign-key>
+        <foreign-key foreignTable="course_tb">
+            <reference foreign="id" local="course_id"/>
+        </foreign-key>
+    </table>
+  <table name="homework_tb" phpName="Homework">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="course_id" type="Integer"/>
+      <column name="Materie" type="Varchar" size="255"/>
+      <column name="DueTime" type="Timestamp"/>
+      <column name="Description" type="LONGVARCHAR"/>
+      <column name="PostTime" type="Timestamp"/>
+      <column name="Nota" type="integer"/>
+    <foreign-key foreignTable="course_tb">
+      <reference foreign="id" local="course_id"/>
+    </foreign-key>
+  </table>
+  <table name="test_tb" phpName="Test">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="course_id" type="Integer"/>
+      <column name="Materie" type="Varchar" size="255"/>
+      <column name="DueTime" type="Timestamp"/>
+      <column name="PostTime" type="Timestamp"/>
+      <column name="Nota" type="integer"/>
+    <foreign-key foreignTable="course_tb">
+      <reference foreign="id" local="course_id"/>
+    </foreign-key>
+  </table>
+  <table name="project_tb" phpName="Project">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="course_id" type="Integer"/>
+    <column name="Titlu" type="Varchar" size="255"/>
+    <column name="Materie" type="Varchar" size="255"/>
+    <column name="Dificultate" type="Varchar" size="255"/>
+    <column name="Description" type="LONGVARCHAR"/>
+    <column name="Nota" type="integer"/>
+    <column name="Numar_Participanti" type="integer"/>
+    <column name="DueTime" type="Timestamp"/>
+    <column name="PostTime" type="Timestamp"/>
+    <foreign-key foreignTable="course_tb">
+      <reference foreign="id" local="course_id"/>
+    </foreign-key>
+  </table>
+  <table name="profesor_tb" phpName="Profesor">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="name" type="Varchar" size="255"/>
+    <column name="email" type="Varchar" size="255"/>
+    <column name="password" type="Varchar" size="255" required="true"/>
+  </table>
+  <table name="course_tb" phpName="Course">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="profesor_id" type="Integer"/>
+    <column name="subject_id" type="Integer"/>
+    <column name="Subject_Name" type="Varchar" size="255"/>
+      <column name="Class_Capacity" type="Integer"/>
+      <column name="Initial_Class_Capacity" type="Integer"/>
+      <column name="Start_Date" type="Timestamp"/>
+      <column name="Finish_Date" type="Timestamp"/>
+    <foreign-key foreignTable="profesor_tb">
+      <reference foreign="id" local="profesor_id"/>
+    </foreign-key>
+    <foreign-key foreignTable="subject_tb">
+      <reference foreign="id" local="subject_id"/>
+    </foreign-key>
+  </table>
+  <table name="subject_tb" phpName="Subject">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+  </table>
+  <table name="homeworkeval_tb" phpName="HomeworkEval">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="homework_id" type="Integer"/>
+    <column name="subscription_id" type="Integer"/>
+    <foreign-key foreignTable="homework_tb">
+      <reference foreign="id" local="homework_id"/>
+    </foreign-key>
+    <foreign-key foreignTable="subscription_tb">
+      <reference foreign="id" local="subscription_id"/>
+    </foreign-key>
+  </table>
+  <table name="testeval_tb" phpName="TestEval">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="test_id" type="Integer"/>
+    <column name="subscription_id" type="Integer"/>
+    <foreign-key foreignTable="test_tb">
+      <reference foreign="id" local="test_id"/>
+    </foreign-key>
+    <foreign-key foreignTable="subscription_tb">
+      <reference foreign="id" local="subscription_id"/>
+    </foreign-key>
+  </table>
+  <table name="projecteval_tb" phpName="ProjectEval">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="project_id" type="Integer"/>
+    <column name="subscription_id" type="Integer"/>
+    <foreign-key foreignTable="project_tb">
+      <reference foreign="id" local="project_id"/>
+    </foreign-key>
+    <foreign-key foreignTable="subscription_tb">
+      <reference foreign="id" local="subscription_id"/>
+    </foreign-key>
+  </table>
+  <table name="group_tb" phpName="Group">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="project_id" type="Integer"/>
+    <column name="nr" type="Integer" default="0"/>
+    <foreign-key foreignTable="project_tb">
+      <reference foreign="id" local="project_id"/>
+    </foreign-key>
+  </table>
+  <table name="pack_tb" phpName="Pack">
+    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+    <column name="group_id" type="Integer"/>
+    <column name="subscription_id" type="Integer"/>
+    <foreign-key foreignTable="group_tb">
+      <reference foreign="id" local="group_id"/>
+    </foreign-key>
+    <foreign-key foreignTable="subscription_tb">
+      <reference foreign="id" local="subscription_id"/>
+    </foreign-key>
+  </table>
+</database>

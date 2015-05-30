@@ -1,0 +1,10 @@
+propel:
+    database:
+        connections:
+            default:
+                adapter: oracle
+                dsn: oci:dbname=//localhost:1521/xe
+                user: system
+                password: 12345
+                settings:
+                    charset: utf8

@@ -1,0 +1,44 @@
+
+.Title{
+	width: 100px;
+	font-size: large;
+}
+.Navigation{
+	background-color: none;
+	list-style-type: none;
+	width: 70%;
+	margin-left: 15%;
+	padding: 0;
+}
+.Navigation li{
+	background-color: none;
+	display: inline;
+	margin-left: 0px;
+}
+.Navigation li form{
+	display: inline;
+}
+.Navigation li input{
+	width: 12.5%;
+
+}
+
+.Profesor{
+	padding: 0;
+	width:30%;
+}
+.Profesor li{
+	background-color: none;
+	display: inline;
+	margin-left: 0px;
+}
+.Profesor li form{
+	display: inline;
+}
+.Profesor li form input{
+	width: 33%;
+}
+.Unavailable{
+	color: red;
+    background-color: red;
+}
