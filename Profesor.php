@@ -18,30 +18,101 @@
 </html>
 
 <?php
+$Array=array("ID","Student Name","Subject","Accept","Decline");
+$Message="";
 session_start();
 
-    $Course_query=new bdxe\CourseQuery();
-    $Profesors_query=new bdxe\ProfesorQuery();
-    $Requests_query=new bdxe\SubjectQuery();
-    $Student_query=new bdxe\StudentQuery();
-    $Requests_List=$Requests_query->find();
 
-    $Teacher_Courses=$Course_query->findByProfesorId($Profesors_query->findOneByName($_SESSION['user'])->getId());
-    foreach($Teacher_Courses as $course) {
-        foreach($Requests_List as $request) {
-            if($request->getCourseId()==$course->getId()) {
-                echo $Student_query->findOneById($request->getStudentId());
-            }
-        }
-    }
 	if(isset($_SESSION['AssigmentMessage']))
 	{
 		echo $_SESSION['AssigmentMessage'];
-		$_SESSION['AssigmentMessage']="";
+		$_SESSION['AssigmentMessage']=null;
 	}
+
+    if(isset($_SESSION['AcceptanceMessage']))
+    {
+        echo $_SESSION['AcceptanceMessage'];
+        $_SESSION['AcceptanceMessage']=null;
+    }
 
 	if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor")
 	{
+
+
+        $Course_query=new bdxe\CourseQuery();
+        $Profesors_query=new bdxe\ProfesorQuery();
+        $Requests_query=new bdxe\SubjectQuery();
+        $Student_query=new bdxe\StudentQuery();
+        $Requests_List=$Requests_query->find();
+        $Student_List=$Student_query->find();
+
+        $Teacher_Courses=$Course_query->findByProfesorId($Profesors_query->findOneByName($_SESSION['user'])->getId());
+        CreateTable($Array,"Subject Requests");
+
+        foreach($Teacher_Courses as $course) {
+            foreach($Requests_List as $request) {
+                if($request->getCourseId()==$course->getId()) {
+                    foreach ($Student_List as $Student) {
+                        if($Student->getId()==$request->getStudentId()) {
+                            $Student_id = $Student->getId();
+                            $Course_id = $course->getId();
+
+                            echo "<tr>";
+                            echo "<td>" . $Student->getId() . "</td>";
+                            echo "<td>" . $Student->getName() . "</td>";
+                            echo "<td>" . $course->getSubjectName() . "</td>";
+                            echo "<td> <a href='Profesor.php?Accept={$Student_id}&Course={$Course_id}'>Accept</a></td>";
+                            echo "<td> <a href='Profesor.php?Decline={$Student_id}'>Decline</a></td>";
+                            echo "</tr>";
+                        }
+                    }
+                }
+            }
+        }
+        echo "</table>";
+
+        if(isset($_GET['Accept']) && isset($_GET['Course'])) {
+
+            $Subscription_check=new bdxe\SubscriptionQuery();
+
+            $Subscription=new \bdxe\Subscription();
+            $Subscription->setCourseId($_GET['Course']);
+            $Subscription->setStudentId($_GET['Accept']);
+            $Subscription->save();
+            $Student=$Student_query->findOneById($_GET['Accept']);
+            $Course=$Course_query->findOneById($_GET['Course']);
+
+            $Student_name=$Student->getName();
+            $Course_name=$Course->getSubjectName();
+
+
+            $_SESSION['AcceptanceMessage']="Student {$Student_name} has been accepted in {$Course_name}!";
+
+            foreach($Subscription_check->find() as $key) {
+                if($key->getCourseId()==$_GET['Course'] && $key->getStudentId()==$_GET['Accept']){
+                    $Message=$Student->getTeachermessage()." ".$Course_query->findOneById($_GET['Course'])->getSubjectName();
+                }
+            }
+
+
+
+            $Student->setTeachermessage("{$Message}");
+            $Student->save();
+            $RequestList=$Requests_query->find();
+            foreach($RequestList as $key) {
+                if($key->getCourseId()==$_GET['Course'] && $key->getStudentId()==$_GET['Accept']) {
+                    $key->delete();
+                    break;
+                }
+            }
+
+
+            header("Location: Profesor.php");
+        }
+
+        if(isset($_GET['Decline'])) {
+
+        }
 
              echo "<ul class='Profesor'>";
              $Assigments=array('Assigment','Homework','Test');
