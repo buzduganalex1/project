@@ -31,17 +31,6 @@
           <reference foreign="id" local="course_id"/>
       </foreign-key>
   </table>
-    <table name="Request_tb" phpName="Request">
-        <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
-        <column name="student_id" type="Integer"/>
-        <column name="course_id" type="Integer"/>
-        <foreign-key foreignTable="student_tb">
-            <reference foreign="id" local="student_id"/>
-        </foreign-key>
-        <foreign-key foreignTable="course_tb">
-            <reference foreign="id" local="course_id"/>
-        </foreign-key>
-    </table>
   <table name="homework_tb" phpName="Homework">
     <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
     <column name="course_id" type="Integer"/>
@@ -103,7 +92,15 @@
     </foreign-key>
   </table>
   <table name="subject_tb" phpName="Subject">
-    <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+      <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
+      <column name="student_id" type="Integer"/>
+      <column name="course_id" type="Integer"/>
+      <foreign-key foreignTable="student_tb">
+          <reference foreign="id" local="student_id"/>
+      </foreign-key>
+      <foreign-key foreignTable="course_tb">
+          <reference foreign="id" local="course_id"/>
+      </foreign-key>
   </table>
   <table name="homeworkeval_tb" phpName="HomeworkEval">
     <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>

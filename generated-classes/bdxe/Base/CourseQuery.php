@@ -46,17 +46,13 @@ use bdxe\Map\CourseTableMap;
  * @method     ChildCourseQuery rightJoinProfesor($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Profesor relation
  * @method     ChildCourseQuery innerJoinProfesor($relationAlias = null) Adds a INNER JOIN clause to the query using the Profesor relation
  *
- * @method     ChildCourseQuery leftJoinSubject($relationAlias = null) Adds a LEFT JOIN clause to the query using the Subject relation
- * @method     ChildCourseQuery rightJoinSubject($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Subject relation
- * @method     ChildCourseQuery innerJoinSubject($relationAlias = null) Adds a INNER JOIN clause to the query using the Subject relation
+ * @method     ChildCourseQuery leftJoinSubjectRelatedBySubjectId($relationAlias = null) Adds a LEFT JOIN clause to the query using the SubjectRelatedBySubjectId relation
+ * @method     ChildCourseQuery rightJoinSubjectRelatedBySubjectId($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SubjectRelatedBySubjectId relation
+ * @method     ChildCourseQuery innerJoinSubjectRelatedBySubjectId($relationAlias = null) Adds a INNER JOIN clause to the query using the SubjectRelatedBySubjectId relation
  *
  * @method     ChildCourseQuery leftJoinSubscription($relationAlias = null) Adds a LEFT JOIN clause to the query using the Subscription relation
  * @method     ChildCourseQuery rightJoinSubscription($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Subscription relation
  * @method     ChildCourseQuery innerJoinSubscription($relationAlias = null) Adds a INNER JOIN clause to the query using the Subscription relation
- *
- * @method     ChildCourseQuery leftJoinRequest($relationAlias = null) Adds a LEFT JOIN clause to the query using the Request relation
- * @method     ChildCourseQuery rightJoinRequest($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Request relation
- * @method     ChildCourseQuery innerJoinRequest($relationAlias = null) Adds a INNER JOIN clause to the query using the Request relation
  *
  * @method     ChildCourseQuery leftJoinHomework($relationAlias = null) Adds a LEFT JOIN clause to the query using the Homework relation
  * @method     ChildCourseQuery rightJoinHomework($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Homework relation
@@ -70,7 +66,11 @@ use bdxe\Map\CourseTableMap;
  * @method     ChildCourseQuery rightJoinProject($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Project relation
  * @method     ChildCourseQuery innerJoinProject($relationAlias = null) Adds a INNER JOIN clause to the query using the Project relation
  *
- * @method     \bdxe\ProfesorQuery|\bdxe\SubjectQuery|\bdxe\SubscriptionQuery|\bdxe\RequestQuery|\bdxe\HomeworkQuery|\bdxe\TestQuery|\bdxe\ProjectQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     ChildCourseQuery leftJoinSubjectRelatedByCourseId($relationAlias = null) Adds a LEFT JOIN clause to the query using the SubjectRelatedByCourseId relation
+ * @method     ChildCourseQuery rightJoinSubjectRelatedByCourseId($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SubjectRelatedByCourseId relation
+ * @method     ChildCourseQuery innerJoinSubjectRelatedByCourseId($relationAlias = null) Adds a INNER JOIN clause to the query using the SubjectRelatedByCourseId relation
+ *
+ * @method     \bdxe\ProfesorQuery|\bdxe\SubjectQuery|\bdxe\SubscriptionQuery|\bdxe\HomeworkQuery|\bdxe\TestQuery|\bdxe\ProjectQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildCourse findOne(ConnectionInterface $con = null) Return the first ChildCourse matching the query
  * @method     ChildCourse findOneOrCreate(ConnectionInterface $con = null) Return the first ChildCourse matching the query, or a new ChildCourse object populated from the query conditions when no match is found
@@ -381,7 +381,7 @@ abstract class CourseQuery extends ModelCriteria
      * $query->filterBySubjectId(array('min' => 12)); // WHERE subject_id > 12
      * </code>
      *
-     * @see       filterBySubject()
+     * @see       filterBySubjectRelatedBySubjectId()
      *
      * @param     mixed $subjectId The value to use as filter.
      *              Use scalar values for equality.
@@ -698,7 +698,7 @@ abstract class CourseQuery extends ModelCriteria
      *
      * @return ChildCourseQuery The current query, for fluid interface
      */
-    public function filterBySubject($subject, $comparison = null)
+    public function filterBySubjectRelatedBySubjectId($subject, $comparison = null)
     {
         if ($subject instanceof \bdxe\Subject) {
             return $this
@@ -711,22 +711,22 @@ abstract class CourseQuery extends ModelCriteria
             return $this
                 ->addUsingAlias(CourseTableMap::COL_SUBJECT_ID, $subject->toKeyValue('PrimaryKey', 'Id'), $comparison);
         } else {
-            throw new PropelException('filterBySubject() only accepts arguments of type \bdxe\Subject or Collection');
+            throw new PropelException('filterBySubjectRelatedBySubjectId() only accepts arguments of type \bdxe\Subject or Collection');
         }
     }
 
     /**
-     * Adds a JOIN clause to the query using the Subject relation
+     * Adds a JOIN clause to the query using the SubjectRelatedBySubjectId relation
      *
      * @param     string $relationAlias optional alias for the relation
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
      * @return $this|ChildCourseQuery The current query, for fluid interface
      */
-    public function joinSubject($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    public function joinSubjectRelatedBySubjectId($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
     {
         $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('Subject');
+        $relationMap = $tableMap->getRelation('SubjectRelatedBySubjectId');
 
         // create a ModelJoin object for this join
         $join = new ModelJoin();
@@ -741,14 +741,14 @@ abstract class CourseQuery extends ModelCriteria
             $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
             $this->addJoinObject($join, $relationAlias);
         } else {
-            $this->addJoinObject($join, 'Subject');
+            $this->addJoinObject($join, 'SubjectRelatedBySubjectId');
         }
 
         return $this;
     }
 
     /**
-     * Use the Subject relation Subject object
+     * Use the SubjectRelatedBySubjectId relation Subject object
      *
      * @see useQuery()
      *
@@ -758,11 +758,11 @@ abstract class CourseQuery extends ModelCriteria
      *
      * @return \bdxe\SubjectQuery A secondary query class using the current class as primary query
      */
-    public function useSubjectQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    public function useSubjectRelatedBySubjectIdQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
     {
         return $this
-            ->joinSubject($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'Subject', '\bdxe\SubjectQuery');
+            ->joinSubjectRelatedBySubjectId($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'SubjectRelatedBySubjectId', '\bdxe\SubjectQuery');
     }
 
     /**
@@ -836,79 +836,6 @@ abstract class CourseQuery extends ModelCriteria
         return $this
             ->joinSubscription($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Subscription', '\bdxe\SubscriptionQuery');
-    }
-
-    /**
-     * Filter the query by a related \bdxe\Request object
-     *
-     * @param \bdxe\Request|ObjectCollection $request the related object to use as filter
-     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return ChildCourseQuery The current query, for fluid interface
-     */
-    public function filterByRequest($request, $comparison = null)
-    {
-        if ($request instanceof \bdxe\Request) {
-            return $this
-                ->addUsingAlias(CourseTableMap::COL_ID, $request->getCourseId(), $comparison);
-        } elseif ($request instanceof ObjectCollection) {
-            return $this
-                ->useRequestQuery()
-                ->filterByPrimaryKeys($request->getPrimaryKeys())
-                ->endUse();
-        } else {
-            throw new PropelException('filterByRequest() only accepts arguments of type \bdxe\Request or Collection');
-        }
-    }
-
-    /**
-     * Adds a JOIN clause to the query using the Request relation
-     *
-     * @param     string $relationAlias optional alias for the relation
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return $this|ChildCourseQuery The current query, for fluid interface
-     */
-    public function joinRequest($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
-    {
-        $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('Request');
-
-        // create a ModelJoin object for this join
-        $join = new ModelJoin();
-        $join->setJoinType($joinType);
-        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
-        if ($previousJoin = $this->getPreviousJoin()) {
-            $join->setPreviousJoin($previousJoin);
-        }
-
-        // add the ModelJoin to the current object
-        if ($relationAlias) {
-            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
-            $this->addJoinObject($join, $relationAlias);
-        } else {
-            $this->addJoinObject($join, 'Request');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Use the Request relation Request object
-     *
-     * @see useQuery()
-     *
-     * @param     string $relationAlias optional alias for the relation,
-     *                                   to be used as main alias in the secondary query
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return \bdxe\RequestQuery A secondary query class using the current class as primary query
-     */
-    public function useRequestQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
-    {
-        return $this
-            ->joinRequest($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'Request', '\bdxe\RequestQuery');
     }
 
     /**
@@ -1128,6 +1055,79 @@ abstract class CourseQuery extends ModelCriteria
         return $this
             ->joinProject($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Project', '\bdxe\ProjectQuery');
+    }
+
+    /**
+     * Filter the query by a related \bdxe\Subject object
+     *
+     * @param \bdxe\Subject|ObjectCollection $subject the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildCourseQuery The current query, for fluid interface
+     */
+    public function filterBySubjectRelatedByCourseId($subject, $comparison = null)
+    {
+        if ($subject instanceof \bdxe\Subject) {
+            return $this
+                ->addUsingAlias(CourseTableMap::COL_ID, $subject->getCourseId(), $comparison);
+        } elseif ($subject instanceof ObjectCollection) {
+            return $this
+                ->useSubjectRelatedByCourseIdQuery()
+                ->filterByPrimaryKeys($subject->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterBySubjectRelatedByCourseId() only accepts arguments of type \bdxe\Subject or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the SubjectRelatedByCourseId relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildCourseQuery The current query, for fluid interface
+     */
+    public function joinSubjectRelatedByCourseId($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('SubjectRelatedByCourseId');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'SubjectRelatedByCourseId');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the SubjectRelatedByCourseId relation Subject object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \bdxe\SubjectQuery A secondary query class using the current class as primary query
+     */
+    public function useSubjectRelatedByCourseIdQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinSubjectRelatedByCourseId($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'SubjectRelatedByCourseId', '\bdxe\SubjectQuery');
     }
 
     /**

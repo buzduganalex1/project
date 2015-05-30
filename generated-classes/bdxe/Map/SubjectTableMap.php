@@ -59,7 +59,7 @@ class SubjectTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 1;
+    const NUM_COLUMNS = 3;
 
     /**
      * The number of lazy-loaded columns
@@ -69,12 +69,22 @@ class SubjectTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 1;
+    const NUM_HYDRATE_COLUMNS = 3;
 
     /**
      * the column name for the id field
      */
     const COL_ID = 'subject_tb.id';
+
+    /**
+     * the column name for the student_id field
+     */
+    const COL_STUDENT_ID = 'subject_tb.student_id';
+
+    /**
+     * the column name for the course_id field
+     */
+    const COL_COURSE_ID = 'subject_tb.course_id';
 
     /**
      * The default string format for model objects of the related table
@@ -88,11 +98,11 @@ class SubjectTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', ),
-        self::TYPE_CAMELNAME     => array('id', ),
-        self::TYPE_COLNAME       => array(SubjectTableMap::COL_ID, ),
-        self::TYPE_FIELDNAME     => array('id', ),
-        self::TYPE_NUM           => array(0, )
+        self::TYPE_PHPNAME       => array('Id', 'StudentId', 'CourseId', ),
+        self::TYPE_CAMELNAME     => array('id', 'studentId', 'courseId', ),
+        self::TYPE_COLNAME       => array(SubjectTableMap::COL_ID, SubjectTableMap::COL_STUDENT_ID, SubjectTableMap::COL_COURSE_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'student_id', 'course_id', ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -102,11 +112,11 @@ class SubjectTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, ),
-        self::TYPE_COLNAME       => array(SubjectTableMap::COL_ID => 0, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, ),
-        self::TYPE_NUM           => array(0, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'StudentId' => 1, 'CourseId' => 2, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'studentId' => 1, 'courseId' => 2, ),
+        self::TYPE_COLNAME       => array(SubjectTableMap::COL_ID => 0, SubjectTableMap::COL_STUDENT_ID => 1, SubjectTableMap::COL_COURSE_ID => 2, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'student_id' => 1, 'course_id' => 2, ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -128,6 +138,8 @@ class SubjectTableMap extends TableMap
         $this->setPrimaryKeyMethodInfo('subject_tb_SEQ');
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
+        $this->addForeignKey('student_id', 'StudentId', 'INTEGER', 'student_tb', 'id', false, null, null);
+        $this->addForeignKey('course_id', 'CourseId', 'INTEGER', 'course_tb', 'id', false, null, null);
     } // initialize()
 
     /**
@@ -135,13 +147,27 @@ class SubjectTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Course', '\\bdxe\\Course', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('Student', '\\bdxe\\Student', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':student_id',
+    1 => ':id',
+  ),
+), null, null, null, false);
+        $this->addRelation('CourseRelatedByCourseId', '\\bdxe\\Course', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':course_id',
+    1 => ':id',
+  ),
+), null, null, null, false);
+        $this->addRelation('CourseRelatedBySubjectId', '\\bdxe\\Course', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
     0 => ':subject_id',
     1 => ':id',
   ),
-), null, null, 'Courses', false);
+), null, null, 'CoursesRelatedBySubjectId', false);
     } // buildRelations()
 
     /**
@@ -286,8 +312,12 @@ class SubjectTableMap extends TableMap
     {
         if (null === $alias) {
             $criteria->addSelectColumn(SubjectTableMap::COL_ID);
+            $criteria->addSelectColumn(SubjectTableMap::COL_STUDENT_ID);
+            $criteria->addSelectColumn(SubjectTableMap::COL_COURSE_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
+            $criteria->addSelectColumn($alias . '.student_id');
+            $criteria->addSelectColumn($alias . '.course_id');
         }
     }
 

@@ -69,26 +69,6 @@ CREATE SEQUENCE subscription_tb_SEQ
     INCREMENT BY 1 START WITH 1 NOMAXVALUE NOCYCLE NOCACHE ORDER;
 
 -----------------------------------------------------------------------
--- Request_tb
------------------------------------------------------------------------
-
-DROP TABLE Request_tb CASCADE CONSTRAINTS;
-
-DROP SEQUENCE Request_tb_SEQ;
-
-CREATE TABLE Request_tb
-(
-    id NUMBER NOT NULL,
-    student_id NUMBER,
-    course_id NUMBER
-);
-
-ALTER TABLE Request_tb ADD CONSTRAINT Request_tb_pk PRIMARY KEY (id);
-
-CREATE SEQUENCE Request_tb_SEQ
-    INCREMENT BY 1 START WITH 1 NOMAXVALUE NOCYCLE NOCACHE ORDER;
-
------------------------------------------------------------------------
 -- homework_tb
 -----------------------------------------------------------------------
 
@@ -218,7 +198,9 @@ DROP SEQUENCE subject_tb_SEQ;
 
 CREATE TABLE subject_tb
 (
-    id NUMBER NOT NULL
+    id NUMBER NOT NULL,
+    student_id NUMBER,
+    course_id NUMBER
 );
 
 ALTER TABLE subject_tb ADD CONSTRAINT subject_tb_pk PRIMARY KEY (id);
@@ -336,12 +318,6 @@ ALTER TABLE subscription_tb ADD CONSTRAINT subscription_tb_fk_97f89d
 ALTER TABLE subscription_tb ADD CONSTRAINT subscription_tb_fk_cad7d4
     FOREIGN KEY (course_id) REFERENCES course_tb (id);
 
-ALTER TABLE Request_tb ADD CONSTRAINT Request_tb_fk_97f89d
-    FOREIGN KEY (student_id) REFERENCES student_tb (id);
-
-ALTER TABLE Request_tb ADD CONSTRAINT Request_tb_fk_cad7d4
-    FOREIGN KEY (course_id) REFERENCES course_tb (id);
-
 ALTER TABLE homework_tb ADD CONSTRAINT homework_tb_fk_cad7d4
     FOREIGN KEY (course_id) REFERENCES course_tb (id);
 
@@ -356,6 +332,12 @@ ALTER TABLE course_tb ADD CONSTRAINT course_tb_fk_cfe292
 
 ALTER TABLE course_tb ADD CONSTRAINT course_tb_fk_bc272d
     FOREIGN KEY (subject_id) REFERENCES subject_tb (id);
+
+ALTER TABLE subject_tb ADD CONSTRAINT subject_tb_fk_97f89d
+    FOREIGN KEY (student_id) REFERENCES student_tb (id);
+
+ALTER TABLE subject_tb ADD CONSTRAINT subject_tb_fk_cad7d4
+    FOREIGN KEY (course_id) REFERENCES course_tb (id);
 
 ALTER TABLE homeworkeval_tb ADD CONSTRAINT homeworkeval_tb_fk_aadd2e
     FOREIGN KEY (homework_id) REFERENCES homework_tb (id);

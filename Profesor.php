@@ -20,7 +20,20 @@
 <?php
 session_start();
 
+    $Course_query=new bdxe\CourseQuery();
+    $Profesors_query=new bdxe\ProfesorQuery();
+    $Requests_query=new bdxe\SubjectQuery();
+    $Student_query=new bdxe\StudentQuery();
+    $Requests_List=$Requests_query->find();
 
+    $Teacher_Courses=$Course_query->findByProfesorId($Profesors_query->findOneByName($_SESSION['user'])->getId());
+    foreach($Teacher_Courses as $course) {
+        foreach($Requests_List as $request) {
+            if($request->getCourseId()==$course->getId()) {
+                echo $Student_query->findOneById($request->getStudentId());
+            }
+        }
+    }
 	if(isset($_SESSION['AssigmentMessage']))
 	{
 		echo $_SESSION['AssigmentMessage'];

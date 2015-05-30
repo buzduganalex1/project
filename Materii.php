@@ -87,31 +87,28 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Student") {
 
     if(isset($_GET['Course_id'])) {
         $Course_id= $_GET['Course_id'];
-        $query=new bdxe\SubscriptionQuery();
-        $Subscriptions=$query->find();
+        $Request_query=new bdxe\SubjectQuery();
+        $Requests=$Request_query->find();
 
-        foreach($Subscriptions as $subscription) {
-            if($subscription->getCourseId()==$Course_id && $subscription->getStudentId()==$Student_id)
+        foreach($Requests as $request) {
+            if($request->getCourseId()==$Course_id && $request->getStudentId()==$Student_id)
             {
                 $Assigned=false;
             }
 
         }
+
         if($Assigned){
             $query=new bdxe\CourseQuery();
             $Course=$query->findOneById($Course_id);
 
             if($Course->getClassCapacity()>=1) {
-
-
-                /*$Course->setClassCapacity($Course->getClassCapacity() - 1);
-                $Subscription = new bdxe\Subscription();
-                $Subscription->setCourseId($Course_id);
-                $Subscription->setStudentId($Student_id);
-                $Subscription->save();
-                $Course->save();
                 $CourseName=$Course->getSubjectName();
-                */
+                $request=new \bdxe\Subject();
+                $request->setStudentId($Student_id);
+                $request->setCourseId($Course->getId());
+                $request->save();
+
                 $_SESSION['SuccesfullRegistrationSubject']="You have successfully submited a request for {$CourseName}";
                 header("Location: Materii.php");
             }
@@ -122,6 +119,7 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Student") {
             foreach($Courses as $course) {
                 if($course->getId()==$Course_id) {
                     $Course_Name=$course->getSubjectName();
+
                 }
 
             }

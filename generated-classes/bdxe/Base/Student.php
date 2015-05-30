@@ -16,10 +16,10 @@ use Propel\Runtime\Exception\LogicException;
 use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
-use bdxe\Request as ChildRequest;
-use bdxe\RequestQuery as ChildRequestQuery;
 use bdxe\Student as ChildStudent;
 use bdxe\StudentQuery as ChildStudentQuery;
+use bdxe\Subject as ChildSubject;
+use bdxe\SubjectQuery as ChildSubjectQuery;
 use bdxe\Subscription as ChildSubscription;
 use bdxe\SubscriptionQuery as ChildSubscriptionQuery;
 use bdxe\Map\StudentTableMap;
@@ -108,10 +108,10 @@ abstract class Student implements ActiveRecordInterface
     protected $collSubscriptionsPartial;
 
     /**
-     * @var        ObjectCollection|ChildRequest[] Collection to store aggregation of ChildRequest objects.
+     * @var        ObjectCollection|ChildSubject[] Collection to store aggregation of ChildSubject objects.
      */
-    protected $collRequests;
-    protected $collRequestsPartial;
+    protected $collSubjects;
+    protected $collSubjectsPartial;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -129,9 +129,9 @@ abstract class Student implements ActiveRecordInterface
 
     /**
      * An array of objects scheduled for deletion.
-     * @var ObjectCollection|ChildRequest[]
+     * @var ObjectCollection|ChildSubject[]
      */
-    protected $requestsScheduledForDeletion = null;
+    protected $subjectsScheduledForDeletion = null;
 
     /**
      * Initializes internal state of bdxe\Base\Student object.
@@ -654,7 +654,7 @@ abstract class Student implements ActiveRecordInterface
 
             $this->collSubscriptions = null;
 
-            $this->collRequests = null;
+            $this->collSubjects = null;
 
         } // if (deep)
     }
@@ -784,18 +784,18 @@ abstract class Student implements ActiveRecordInterface
                 }
             }
 
-            if ($this->requestsScheduledForDeletion !== null) {
-                if (!$this->requestsScheduledForDeletion->isEmpty()) {
-                    foreach ($this->requestsScheduledForDeletion as $request) {
+            if ($this->subjectsScheduledForDeletion !== null) {
+                if (!$this->subjectsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->subjectsScheduledForDeletion as $subject) {
                         // need to save related object because we set the relation to null
-                        $request->save($con);
+                        $subject->save($con);
                     }
-                    $this->requestsScheduledForDeletion = null;
+                    $this->subjectsScheduledForDeletion = null;
                 }
             }
 
-            if ($this->collRequests !== null) {
-                foreach ($this->collRequests as $referrerFK) {
+            if ($this->collSubjects !== null) {
+                foreach ($this->collSubjects as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -1015,20 +1015,20 @@ abstract class Student implements ActiveRecordInterface
         
                 $result[$key] = $this->collSubscriptions->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
-            if (null !== $this->collRequests) {
+            if (null !== $this->collSubjects) {
                 
                 switch ($keyType) {
                     case TableMap::TYPE_CAMELNAME:
-                        $key = 'requests';
+                        $key = 'subjects';
                         break;
                     case TableMap::TYPE_FIELDNAME:
-                        $key = 'Request_tbs';
+                        $key = 'subject_tbs';
                         break;
                     default:
-                        $key = 'Requests';
+                        $key = 'Subjects';
                 }
         
-                $result[$key] = $this->collRequests->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+                $result[$key] = $this->collSubjects->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1288,9 +1288,9 @@ abstract class Student implements ActiveRecordInterface
                 }
             }
 
-            foreach ($this->getRequests() as $relObj) {
+            foreach ($this->getSubjects() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addRequest($relObj->copy($deepCopy));
+                    $copyObj->addSubject($relObj->copy($deepCopy));
                 }
             }
 
@@ -1338,8 +1338,8 @@ abstract class Student implements ActiveRecordInterface
         if ('Subscription' == $relationName) {
             return $this->initSubscriptions();
         }
-        if ('Request' == $relationName) {
-            return $this->initRequests();
+        if ('Subject' == $relationName) {
+            return $this->initSubjects();
         }
     }
 
@@ -1587,31 +1587,31 @@ abstract class Student implements ActiveRecordInterface
     }
 
     /**
-     * Clears out the collRequests collection
+     * Clears out the collSubjects collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
      * them to be refetched by subsequent calls to accessor method.
      *
      * @return void
-     * @see        addRequests()
+     * @see        addSubjects()
      */
-    public function clearRequests()
+    public function clearSubjects()
     {
-        $this->collRequests = null; // important to set this to NULL since that means it is uninitialized
+        $this->collSubjects = null; // important to set this to NULL since that means it is uninitialized
     }
 
     /**
-     * Reset is the collRequests collection loaded partially.
+     * Reset is the collSubjects collection loaded partially.
      */
-    public function resetPartialRequests($v = true)
+    public function resetPartialSubjects($v = true)
     {
-        $this->collRequestsPartial = $v;
+        $this->collSubjectsPartial = $v;
     }
 
     /**
-     * Initializes the collRequests collection.
+     * Initializes the collSubjects collection.
      *
-     * By default this just sets the collRequests collection to an empty array (like clearcollRequests());
+     * By default this just sets the collSubjects collection to an empty array (like clearcollSubjects());
      * however, you may wish to override this method in your stub class to provide setting appropriate
      * to your application -- for example, setting the initial array to the values stored in database.
      *
@@ -1620,17 +1620,17 @@ abstract class Student implements ActiveRecordInterface
      *
      * @return void
      */
-    public function initRequests($overrideExisting = true)
+    public function initSubjects($overrideExisting = true)
     {
-        if (null !== $this->collRequests && !$overrideExisting) {
+        if (null !== $this->collSubjects && !$overrideExisting) {
             return;
         }
-        $this->collRequests = new ObjectCollection();
-        $this->collRequests->setModel('\bdxe\Request');
+        $this->collSubjects = new ObjectCollection();
+        $this->collSubjects->setModel('\bdxe\Subject');
     }
 
     /**
-     * Gets an array of ChildRequest objects which contain a foreign key that references this object.
+     * Gets an array of ChildSubject objects which contain a foreign key that references this object.
      *
      * If the $criteria is not null, it is used to always fetch the results from the database.
      * Otherwise the results are fetched from the database the first time, then cached.
@@ -1640,108 +1640,108 @@ abstract class Student implements ActiveRecordInterface
      *
      * @param      Criteria $criteria optional Criteria object to narrow the query
      * @param      ConnectionInterface $con optional connection object
-     * @return ObjectCollection|ChildRequest[] List of ChildRequest objects
+     * @return ObjectCollection|ChildSubject[] List of ChildSubject objects
      * @throws PropelException
      */
-    public function getRequests(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getSubjects(Criteria $criteria = null, ConnectionInterface $con = null)
     {
-        $partial = $this->collRequestsPartial && !$this->isNew();
-        if (null === $this->collRequests || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collRequests) {
+        $partial = $this->collSubjectsPartial && !$this->isNew();
+        if (null === $this->collSubjects || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collSubjects) {
                 // return empty collection
-                $this->initRequests();
+                $this->initSubjects();
             } else {
-                $collRequests = ChildRequestQuery::create(null, $criteria)
+                $collSubjects = ChildSubjectQuery::create(null, $criteria)
                     ->filterByStudent($this)
                     ->find($con);
 
                 if (null !== $criteria) {
-                    if (false !== $this->collRequestsPartial && count($collRequests)) {
-                        $this->initRequests(false);
+                    if (false !== $this->collSubjectsPartial && count($collSubjects)) {
+                        $this->initSubjects(false);
 
-                        foreach ($collRequests as $obj) {
-                            if (false == $this->collRequests->contains($obj)) {
-                                $this->collRequests->append($obj);
+                        foreach ($collSubjects as $obj) {
+                            if (false == $this->collSubjects->contains($obj)) {
+                                $this->collSubjects->append($obj);
                             }
                         }
 
-                        $this->collRequestsPartial = true;
+                        $this->collSubjectsPartial = true;
                     }
 
-                    return $collRequests;
+                    return $collSubjects;
                 }
 
-                if ($partial && $this->collRequests) {
-                    foreach ($this->collRequests as $obj) {
+                if ($partial && $this->collSubjects) {
+                    foreach ($this->collSubjects as $obj) {
                         if ($obj->isNew()) {
-                            $collRequests[] = $obj;
+                            $collSubjects[] = $obj;
                         }
                     }
                 }
 
-                $this->collRequests = $collRequests;
-                $this->collRequestsPartial = false;
+                $this->collSubjects = $collSubjects;
+                $this->collSubjectsPartial = false;
             }
         }
 
-        return $this->collRequests;
+        return $this->collSubjects;
     }
 
     /**
-     * Sets a collection of ChildRequest objects related by a one-to-many relationship
+     * Sets a collection of ChildSubject objects related by a one-to-many relationship
      * to the current object.
      * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
      * and new objects from the given Propel collection.
      *
-     * @param      Collection $requests A Propel collection.
+     * @param      Collection $subjects A Propel collection.
      * @param      ConnectionInterface $con Optional connection object
      * @return $this|ChildStudent The current object (for fluent API support)
      */
-    public function setRequests(Collection $requests, ConnectionInterface $con = null)
+    public function setSubjects(Collection $subjects, ConnectionInterface $con = null)
     {
-        /** @var ChildRequest[] $requestsToDelete */
-        $requestsToDelete = $this->getRequests(new Criteria(), $con)->diff($requests);
+        /** @var ChildSubject[] $subjectsToDelete */
+        $subjectsToDelete = $this->getSubjects(new Criteria(), $con)->diff($subjects);
 
         
-        $this->requestsScheduledForDeletion = $requestsToDelete;
+        $this->subjectsScheduledForDeletion = $subjectsToDelete;
 
-        foreach ($requestsToDelete as $requestRemoved) {
-            $requestRemoved->setStudent(null);
+        foreach ($subjectsToDelete as $subjectRemoved) {
+            $subjectRemoved->setStudent(null);
         }
 
-        $this->collRequests = null;
-        foreach ($requests as $request) {
-            $this->addRequest($request);
+        $this->collSubjects = null;
+        foreach ($subjects as $subject) {
+            $this->addSubject($subject);
         }
 
-        $this->collRequests = $requests;
-        $this->collRequestsPartial = false;
+        $this->collSubjects = $subjects;
+        $this->collSubjectsPartial = false;
 
         return $this;
     }
 
     /**
-     * Returns the number of related Request objects.
+     * Returns the number of related Subject objects.
      *
      * @param      Criteria $criteria
      * @param      boolean $distinct
      * @param      ConnectionInterface $con
-     * @return int             Count of related Request objects.
+     * @return int             Count of related Subject objects.
      * @throws PropelException
      */
-    public function countRequests(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    public function countSubjects(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
     {
-        $partial = $this->collRequestsPartial && !$this->isNew();
-        if (null === $this->collRequests || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collRequests) {
+        $partial = $this->collSubjectsPartial && !$this->isNew();
+        if (null === $this->collSubjects || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collSubjects) {
                 return 0;
             }
 
             if ($partial && !$criteria) {
-                return count($this->getRequests());
+                return count($this->getSubjects());
             }
 
-            $query = ChildRequestQuery::create(null, $criteria);
+            $query = ChildSubjectQuery::create(null, $criteria);
             if ($distinct) {
                 $query->distinct();
             }
@@ -1751,54 +1751,54 @@ abstract class Student implements ActiveRecordInterface
                 ->count($con);
         }
 
-        return count($this->collRequests);
+        return count($this->collSubjects);
     }
 
     /**
-     * Method called to associate a ChildRequest object to this object
-     * through the ChildRequest foreign key attribute.
+     * Method called to associate a ChildSubject object to this object
+     * through the ChildSubject foreign key attribute.
      *
-     * @param  ChildRequest $l ChildRequest
+     * @param  ChildSubject $l ChildSubject
      * @return $this|\bdxe\Student The current object (for fluent API support)
      */
-    public function addRequest(ChildRequest $l)
+    public function addSubject(ChildSubject $l)
     {
-        if ($this->collRequests === null) {
-            $this->initRequests();
-            $this->collRequestsPartial = true;
+        if ($this->collSubjects === null) {
+            $this->initSubjects();
+            $this->collSubjectsPartial = true;
         }
 
-        if (!$this->collRequests->contains($l)) {
-            $this->doAddRequest($l);
+        if (!$this->collSubjects->contains($l)) {
+            $this->doAddSubject($l);
         }
 
         return $this;
     }
 
     /**
-     * @param ChildRequest $request The ChildRequest object to add.
+     * @param ChildSubject $subject The ChildSubject object to add.
      */
-    protected function doAddRequest(ChildRequest $request)
+    protected function doAddSubject(ChildSubject $subject)
     {
-        $this->collRequests[]= $request;
-        $request->setStudent($this);
+        $this->collSubjects[]= $subject;
+        $subject->setStudent($this);
     }
 
     /**
-     * @param  ChildRequest $request The ChildRequest object to remove.
+     * @param  ChildSubject $subject The ChildSubject object to remove.
      * @return $this|ChildStudent The current object (for fluent API support)
      */
-    public function removeRequest(ChildRequest $request)
+    public function removeSubject(ChildSubject $subject)
     {
-        if ($this->getRequests()->contains($request)) {
-            $pos = $this->collRequests->search($request);
-            $this->collRequests->remove($pos);
-            if (null === $this->requestsScheduledForDeletion) {
-                $this->requestsScheduledForDeletion = clone $this->collRequests;
-                $this->requestsScheduledForDeletion->clear();
+        if ($this->getSubjects()->contains($subject)) {
+            $pos = $this->collSubjects->search($subject);
+            $this->collSubjects->remove($pos);
+            if (null === $this->subjectsScheduledForDeletion) {
+                $this->subjectsScheduledForDeletion = clone $this->collSubjects;
+                $this->subjectsScheduledForDeletion->clear();
             }
-            $this->requestsScheduledForDeletion[]= $request;
-            $request->setStudent(null);
+            $this->subjectsScheduledForDeletion[]= $subject;
+            $subject->setStudent(null);
         }
 
         return $this;
@@ -1810,7 +1810,7 @@ abstract class Student implements ActiveRecordInterface
      * an identical criteria, it returns the collection.
      * Otherwise if this Student is new, it will return
      * an empty collection; or if this Student has previously
-     * been saved, it will retrieve related Requests from storage.
+     * been saved, it will retrieve related Subjects from storage.
      *
      * This method is protected by default in order to keep the public
      * api reasonable.  You can provide public methods for those you
@@ -1819,14 +1819,14 @@ abstract class Student implements ActiveRecordInterface
      * @param      Criteria $criteria optional Criteria object to narrow the query
      * @param      ConnectionInterface $con optional connection object
      * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-     * @return ObjectCollection|ChildRequest[] List of ChildRequest objects
+     * @return ObjectCollection|ChildSubject[] List of ChildSubject objects
      */
-    public function getRequestsJoinCourse(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    public function getSubjectsJoinCourseRelatedByCourseId(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
     {
-        $query = ChildRequestQuery::create(null, $criteria);
-        $query->joinWith('Course', $joinBehavior);
+        $query = ChildSubjectQuery::create(null, $criteria);
+        $query->joinWith('CourseRelatedByCourseId', $joinBehavior);
 
-        return $this->getRequests($query, $con);
+        return $this->getSubjects($query, $con);
     }
 
     /**
@@ -1865,15 +1865,15 @@ abstract class Student implements ActiveRecordInterface
                     $o->clearAllReferences($deep);
                 }
             }
-            if ($this->collRequests) {
-                foreach ($this->collRequests as $o) {
+            if ($this->collSubjects) {
+                foreach ($this->collSubjects as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
         } // if ($deep)
 
         $this->collSubscriptions = null;
-        $this->collRequests = null;
+        $this->collSubjects = null;
     }
 
     /**

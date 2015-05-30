@@ -1402,10 +1402,10 @@ abstract class Profesor implements ActiveRecordInterface
      * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
      * @return ObjectCollection|ChildCourse[] List of ChildCourse objects
      */
-    public function getCoursesJoinSubject(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    public function getCoursesJoinSubjectRelatedBySubjectId(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
     {
         $query = ChildCourseQuery::create(null, $criteria);
-        $query->joinWith('Subject', $joinBehavior);
+        $query->joinWith('SubjectRelatedBySubjectId', $joinBehavior);
 
         return $this->getCourses($query, $con);
     }

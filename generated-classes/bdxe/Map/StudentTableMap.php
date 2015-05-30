@@ -172,13 +172,13 @@ class StudentTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, 'Subscriptions', false);
-        $this->addRelation('Request', '\\bdxe\\Request', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('Subject', '\\bdxe\\Subject', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
     0 => ':student_id',
     1 => ':id',
   ),
-), null, null, 'Requests', false);
+), null, null, 'Subjects', false);
     } // buildRelations()
 
     /**

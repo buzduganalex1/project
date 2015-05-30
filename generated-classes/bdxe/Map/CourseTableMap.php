@@ -184,7 +184,7 @@ class CourseTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, null, false);
-        $this->addRelation('Subject', '\\bdxe\\Subject', RelationMap::MANY_TO_ONE, array (
+        $this->addRelation('SubjectRelatedBySubjectId', '\\bdxe\\Subject', RelationMap::MANY_TO_ONE, array (
   0 =>
   array (
     0 => ':subject_id',
@@ -198,13 +198,6 @@ class CourseTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, 'Subscriptions', false);
-        $this->addRelation('Request', '\\bdxe\\Request', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':course_id',
-    1 => ':id',
-  ),
-), null, null, 'Requests', false);
         $this->addRelation('Homework', '\\bdxe\\Homework', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
@@ -226,6 +219,13 @@ class CourseTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, 'Projects', false);
+        $this->addRelation('SubjectRelatedByCourseId', '\\bdxe\\Subject', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':course_id',
+    1 => ':id',
+  ),
+), null, null, 'SubjectsRelatedByCourseId', false);
     } // buildRelations()
 
     /**

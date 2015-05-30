@@ -18,6 +18,8 @@ use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
 use bdxe\Course as ChildCourse;
 use bdxe\CourseQuery as ChildCourseQuery;
+use bdxe\Student as ChildStudent;
+use bdxe\StudentQuery as ChildStudentQuery;
 use bdxe\Subject as ChildSubject;
 use bdxe\SubjectQuery as ChildSubjectQuery;
 use bdxe\Map\SubjectTableMap;
@@ -70,10 +72,32 @@ abstract class Subject implements ActiveRecordInterface
     protected $id;
 
     /**
+     * The value for the student_id field.
+     * @var        int
+     */
+    protected $student_id;
+
+    /**
+     * The value for the course_id field.
+     * @var        int
+     */
+    protected $course_id;
+
+    /**
+     * @var        ChildStudent
+     */
+    protected $aStudent;
+
+    /**
+     * @var        ChildCourse
+     */
+    protected $aCourseRelatedByCourseId;
+
+    /**
      * @var        ObjectCollection|ChildCourse[] Collection to store aggregation of ChildCourse objects.
      */
-    protected $collCourses;
-    protected $collCoursesPartial;
+    protected $collCoursesRelatedBySubjectId;
+    protected $collCoursesRelatedBySubjectIdPartial;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -87,7 +111,7 @@ abstract class Subject implements ActiveRecordInterface
      * An array of objects scheduled for deletion.
      * @var ObjectCollection|ChildCourse[]
      */
-    protected $coursesScheduledForDeletion = null;
+    protected $coursesRelatedBySubjectIdScheduledForDeletion = null;
 
     /**
      * Initializes internal state of bdxe\Base\Subject object.
@@ -317,6 +341,26 @@ abstract class Subject implements ActiveRecordInterface
     }
 
     /**
+     * Get the [student_id] column value.
+     * 
+     * @return int
+     */
+    public function getStudentId()
+    {
+        return $this->student_id;
+    }
+
+    /**
+     * Get the [course_id] column value.
+     * 
+     * @return int
+     */
+    public function getCourseId()
+    {
+        return $this->course_id;
+    }
+
+    /**
      * Set the value of [id] column.
      * 
      * @param int $v new value
@@ -335,6 +379,54 @@ abstract class Subject implements ActiveRecordInterface
 
         return $this;
     } // setId()
+
+    /**
+     * Set the value of [student_id] column.
+     * 
+     * @param int $v new value
+     * @return $this|\bdxe\Subject The current object (for fluent API support)
+     */
+    public function setStudentId($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->student_id !== $v) {
+            $this->student_id = $v;
+            $this->modifiedColumns[SubjectTableMap::COL_STUDENT_ID] = true;
+        }
+
+        if ($this->aStudent !== null && $this->aStudent->getId() !== $v) {
+            $this->aStudent = null;
+        }
+
+        return $this;
+    } // setStudentId()
+
+    /**
+     * Set the value of [course_id] column.
+     * 
+     * @param int $v new value
+     * @return $this|\bdxe\Subject The current object (for fluent API support)
+     */
+    public function setCourseId($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->course_id !== $v) {
+            $this->course_id = $v;
+            $this->modifiedColumns[SubjectTableMap::COL_COURSE_ID] = true;
+        }
+
+        if ($this->aCourseRelatedByCourseId !== null && $this->aCourseRelatedByCourseId->getId() !== $v) {
+            $this->aCourseRelatedByCourseId = null;
+        }
+
+        return $this;
+    } // setCourseId()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -374,6 +466,12 @@ abstract class Subject implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : SubjectTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : SubjectTableMap::translateFieldName('StudentId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->student_id = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : SubjectTableMap::translateFieldName('CourseId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->course_id = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -382,7 +480,7 @@ abstract class Subject implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 1; // 1 = SubjectTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 3; // 3 = SubjectTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\bdxe\\Subject'), 0, $e);
@@ -404,6 +502,12 @@ abstract class Subject implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
+        if ($this->aStudent !== null && $this->student_id !== $this->aStudent->getId()) {
+            $this->aStudent = null;
+        }
+        if ($this->aCourseRelatedByCourseId !== null && $this->course_id !== $this->aCourseRelatedByCourseId->getId()) {
+            $this->aCourseRelatedByCourseId = null;
+        }
     } // ensureConsistency
 
     /**
@@ -443,7 +547,9 @@ abstract class Subject implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->collCourses = null;
+            $this->aStudent = null;
+            $this->aCourseRelatedByCourseId = null;
+            $this->collCoursesRelatedBySubjectId = null;
 
         } // if (deep)
     }
@@ -544,6 +650,25 @@ abstract class Subject implements ActiveRecordInterface
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
 
+            // We call the save method on the following object(s) if they
+            // were passed to this object by their corresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aStudent !== null) {
+                if ($this->aStudent->isModified() || $this->aStudent->isNew()) {
+                    $affectedRows += $this->aStudent->save($con);
+                }
+                $this->setStudent($this->aStudent);
+            }
+
+            if ($this->aCourseRelatedByCourseId !== null) {
+                if ($this->aCourseRelatedByCourseId->isModified() || $this->aCourseRelatedByCourseId->isNew()) {
+                    $affectedRows += $this->aCourseRelatedByCourseId->save($con);
+                }
+                $this->setCourseRelatedByCourseId($this->aCourseRelatedByCourseId);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -555,18 +680,18 @@ abstract class Subject implements ActiveRecordInterface
                 $this->resetModified();
             }
 
-            if ($this->coursesScheduledForDeletion !== null) {
-                if (!$this->coursesScheduledForDeletion->isEmpty()) {
-                    foreach ($this->coursesScheduledForDeletion as $course) {
+            if ($this->coursesRelatedBySubjectIdScheduledForDeletion !== null) {
+                if (!$this->coursesRelatedBySubjectIdScheduledForDeletion->isEmpty()) {
+                    foreach ($this->coursesRelatedBySubjectIdScheduledForDeletion as $courseRelatedBySubjectId) {
                         // need to save related object because we set the relation to null
-                        $course->save($con);
+                        $courseRelatedBySubjectId->save($con);
                     }
-                    $this->coursesScheduledForDeletion = null;
+                    $this->coursesRelatedBySubjectIdScheduledForDeletion = null;
                 }
             }
 
-            if ($this->collCourses !== null) {
-                foreach ($this->collCourses as $referrerFK) {
+            if ($this->collCoursesRelatedBySubjectId !== null) {
+                foreach ($this->collCoursesRelatedBySubjectId as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -611,6 +736,12 @@ abstract class Subject implements ActiveRecordInterface
         if ($this->isColumnModified(SubjectTableMap::COL_ID)) {
             $modifiedColumns[':p' . $index++]  = 'id';
         }
+        if ($this->isColumnModified(SubjectTableMap::COL_STUDENT_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'student_id';
+        }
+        if ($this->isColumnModified(SubjectTableMap::COL_COURSE_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'course_id';
+        }
 
         $sql = sprintf(
             'INSERT INTO subject_tb (%s) VALUES (%s)',
@@ -624,6 +755,12 @@ abstract class Subject implements ActiveRecordInterface
                 switch ($columnName) {
                     case 'id':                        
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
+                        break;
+                    case 'student_id':                        
+                        $stmt->bindValue($identifier, $this->student_id, PDO::PARAM_INT);
+                        break;
+                    case 'course_id':                        
+                        $stmt->bindValue($identifier, $this->course_id, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -683,6 +820,12 @@ abstract class Subject implements ActiveRecordInterface
             case 0:
                 return $this->getId();
                 break;
+            case 1:
+                return $this->getStudentId();
+                break;
+            case 2:
+                return $this->getCourseId();
+                break;
             default:
                 return null;
                 break;
@@ -714,6 +857,8 @@ abstract class Subject implements ActiveRecordInterface
         $keys = SubjectTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
+            $keys[1] => $this->getStudentId(),
+            $keys[2] => $this->getCourseId(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -721,7 +866,37 @@ abstract class Subject implements ActiveRecordInterface
         }
         
         if ($includeForeignObjects) {
-            if (null !== $this->collCourses) {
+            if (null !== $this->aStudent) {
+                
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'student';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'student_tb';
+                        break;
+                    default:
+                        $key = 'Student';
+                }
+        
+                $result[$key] = $this->aStudent->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->aCourseRelatedByCourseId) {
+                
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'course';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'course_tb';
+                        break;
+                    default:
+                        $key = 'Course';
+                }
+        
+                $result[$key] = $this->aCourseRelatedByCourseId->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->collCoursesRelatedBySubjectId) {
                 
                 switch ($keyType) {
                     case TableMap::TYPE_CAMELNAME:
@@ -734,7 +909,7 @@ abstract class Subject implements ActiveRecordInterface
                         $key = 'Courses';
                 }
         
-                $result[$key] = $this->collCourses->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+                $result[$key] = $this->collCoursesRelatedBySubjectId->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -773,6 +948,12 @@ abstract class Subject implements ActiveRecordInterface
             case 0:
                 $this->setId($value);
                 break;
+            case 1:
+                $this->setStudentId($value);
+                break;
+            case 2:
+                $this->setCourseId($value);
+                break;
         } // switch()
 
         return $this;
@@ -801,6 +982,12 @@ abstract class Subject implements ActiveRecordInterface
 
         if (array_key_exists($keys[0], $arr)) {
             $this->setId($arr[$keys[0]]);
+        }
+        if (array_key_exists($keys[1], $arr)) {
+            $this->setStudentId($arr[$keys[1]]);
+        }
+        if (array_key_exists($keys[2], $arr)) {
+            $this->setCourseId($arr[$keys[2]]);
         }
     }
 
@@ -845,6 +1032,12 @@ abstract class Subject implements ActiveRecordInterface
 
         if ($this->isColumnModified(SubjectTableMap::COL_ID)) {
             $criteria->add(SubjectTableMap::COL_ID, $this->id);
+        }
+        if ($this->isColumnModified(SubjectTableMap::COL_STUDENT_ID)) {
+            $criteria->add(SubjectTableMap::COL_STUDENT_ID, $this->student_id);
+        }
+        if ($this->isColumnModified(SubjectTableMap::COL_COURSE_ID)) {
+            $criteria->add(SubjectTableMap::COL_COURSE_ID, $this->course_id);
         }
 
         return $criteria;
@@ -932,15 +1125,17 @@ abstract class Subject implements ActiveRecordInterface
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
+        $copyObj->setStudentId($this->getStudentId());
+        $copyObj->setCourseId($this->getCourseId());
 
         if ($deepCopy) {
             // important: temporarily setNew(false) because this affects the behavior of
             // the getter/setter methods for fkey referrer objects.
             $copyObj->setNew(false);
 
-            foreach ($this->getCourses() as $relObj) {
+            foreach ($this->getCoursesRelatedBySubjectId() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addCourse($relObj->copy($deepCopy));
+                    $copyObj->addCourseRelatedBySubjectId($relObj->copy($deepCopy));
                 }
             }
 
@@ -974,6 +1169,108 @@ abstract class Subject implements ActiveRecordInterface
         return $copyObj;
     }
 
+    /**
+     * Declares an association between this object and a ChildStudent object.
+     *
+     * @param  ChildStudent $v
+     * @return $this|\bdxe\Subject The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setStudent(ChildStudent $v = null)
+    {
+        if ($v === null) {
+            $this->setStudentId(NULL);
+        } else {
+            $this->setStudentId($v->getId());
+        }
+
+        $this->aStudent = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildStudent object, it will not be re-added.
+        if ($v !== null) {
+            $v->addSubject($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildStudent object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildStudent The associated ChildStudent object.
+     * @throws PropelException
+     */
+    public function getStudent(ConnectionInterface $con = null)
+    {
+        if ($this->aStudent === null && ($this->student_id !== null)) {
+            $this->aStudent = ChildStudentQuery::create()->findPk($this->student_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aStudent->addSubjects($this);
+             */
+        }
+
+        return $this->aStudent;
+    }
+
+    /**
+     * Declares an association between this object and a ChildCourse object.
+     *
+     * @param  ChildCourse $v
+     * @return $this|\bdxe\Subject The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setCourseRelatedByCourseId(ChildCourse $v = null)
+    {
+        if ($v === null) {
+            $this->setCourseId(NULL);
+        } else {
+            $this->setCourseId($v->getId());
+        }
+
+        $this->aCourseRelatedByCourseId = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildCourse object, it will not be re-added.
+        if ($v !== null) {
+            $v->addSubjectRelatedByCourseId($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildCourse object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildCourse The associated ChildCourse object.
+     * @throws PropelException
+     */
+    public function getCourseRelatedByCourseId(ConnectionInterface $con = null)
+    {
+        if ($this->aCourseRelatedByCourseId === null && ($this->course_id !== null)) {
+            $this->aCourseRelatedByCourseId = ChildCourseQuery::create()->findPk($this->course_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aCourseRelatedByCourseId->addSubjectsRelatedByCourseId($this);
+             */
+        }
+
+        return $this->aCourseRelatedByCourseId;
+    }
+
 
     /**
      * Initializes a collection based on the name of a relation.
@@ -985,37 +1282,37 @@ abstract class Subject implements ActiveRecordInterface
      */
     public function initRelation($relationName)
     {
-        if ('Course' == $relationName) {
-            return $this->initCourses();
+        if ('CourseRelatedBySubjectId' == $relationName) {
+            return $this->initCoursesRelatedBySubjectId();
         }
     }
 
     /**
-     * Clears out the collCourses collection
+     * Clears out the collCoursesRelatedBySubjectId collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
      * them to be refetched by subsequent calls to accessor method.
      *
      * @return void
-     * @see        addCourses()
+     * @see        addCoursesRelatedBySubjectId()
      */
-    public function clearCourses()
+    public function clearCoursesRelatedBySubjectId()
     {
-        $this->collCourses = null; // important to set this to NULL since that means it is uninitialized
+        $this->collCoursesRelatedBySubjectId = null; // important to set this to NULL since that means it is uninitialized
     }
 
     /**
-     * Reset is the collCourses collection loaded partially.
+     * Reset is the collCoursesRelatedBySubjectId collection loaded partially.
      */
-    public function resetPartialCourses($v = true)
+    public function resetPartialCoursesRelatedBySubjectId($v = true)
     {
-        $this->collCoursesPartial = $v;
+        $this->collCoursesRelatedBySubjectIdPartial = $v;
     }
 
     /**
-     * Initializes the collCourses collection.
+     * Initializes the collCoursesRelatedBySubjectId collection.
      *
-     * By default this just sets the collCourses collection to an empty array (like clearcollCourses());
+     * By default this just sets the collCoursesRelatedBySubjectId collection to an empty array (like clearcollCoursesRelatedBySubjectId());
      * however, you may wish to override this method in your stub class to provide setting appropriate
      * to your application -- for example, setting the initial array to the values stored in database.
      *
@@ -1024,13 +1321,13 @@ abstract class Subject implements ActiveRecordInterface
      *
      * @return void
      */
-    public function initCourses($overrideExisting = true)
+    public function initCoursesRelatedBySubjectId($overrideExisting = true)
     {
-        if (null !== $this->collCourses && !$overrideExisting) {
+        if (null !== $this->collCoursesRelatedBySubjectId && !$overrideExisting) {
             return;
         }
-        $this->collCourses = new ObjectCollection();
-        $this->collCourses->setModel('\bdxe\Course');
+        $this->collCoursesRelatedBySubjectId = new ObjectCollection();
+        $this->collCoursesRelatedBySubjectId->setModel('\bdxe\Course');
     }
 
     /**
@@ -1047,48 +1344,48 @@ abstract class Subject implements ActiveRecordInterface
      * @return ObjectCollection|ChildCourse[] List of ChildCourse objects
      * @throws PropelException
      */
-    public function getCourses(Criteria $criteria = null, ConnectionInterface $con = null)
+    public function getCoursesRelatedBySubjectId(Criteria $criteria = null, ConnectionInterface $con = null)
     {
-        $partial = $this->collCoursesPartial && !$this->isNew();
-        if (null === $this->collCourses || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collCourses) {
+        $partial = $this->collCoursesRelatedBySubjectIdPartial && !$this->isNew();
+        if (null === $this->collCoursesRelatedBySubjectId || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collCoursesRelatedBySubjectId) {
                 // return empty collection
-                $this->initCourses();
+                $this->initCoursesRelatedBySubjectId();
             } else {
-                $collCourses = ChildCourseQuery::create(null, $criteria)
-                    ->filterBySubject($this)
+                $collCoursesRelatedBySubjectId = ChildCourseQuery::create(null, $criteria)
+                    ->filterBySubjectRelatedBySubjectId($this)
                     ->find($con);
 
                 if (null !== $criteria) {
-                    if (false !== $this->collCoursesPartial && count($collCourses)) {
-                        $this->initCourses(false);
+                    if (false !== $this->collCoursesRelatedBySubjectIdPartial && count($collCoursesRelatedBySubjectId)) {
+                        $this->initCoursesRelatedBySubjectId(false);
 
-                        foreach ($collCourses as $obj) {
-                            if (false == $this->collCourses->contains($obj)) {
-                                $this->collCourses->append($obj);
+                        foreach ($collCoursesRelatedBySubjectId as $obj) {
+                            if (false == $this->collCoursesRelatedBySubjectId->contains($obj)) {
+                                $this->collCoursesRelatedBySubjectId->append($obj);
                             }
                         }
 
-                        $this->collCoursesPartial = true;
+                        $this->collCoursesRelatedBySubjectIdPartial = true;
                     }
 
-                    return $collCourses;
+                    return $collCoursesRelatedBySubjectId;
                 }
 
-                if ($partial && $this->collCourses) {
-                    foreach ($this->collCourses as $obj) {
+                if ($partial && $this->collCoursesRelatedBySubjectId) {
+                    foreach ($this->collCoursesRelatedBySubjectId as $obj) {
                         if ($obj->isNew()) {
-                            $collCourses[] = $obj;
+                            $collCoursesRelatedBySubjectId[] = $obj;
                         }
                     }
                 }
 
-                $this->collCourses = $collCourses;
-                $this->collCoursesPartial = false;
+                $this->collCoursesRelatedBySubjectId = $collCoursesRelatedBySubjectId;
+                $this->collCoursesRelatedBySubjectIdPartial = false;
             }
         }
 
-        return $this->collCourses;
+        return $this->collCoursesRelatedBySubjectId;
     }
 
     /**
@@ -1097,29 +1394,29 @@ abstract class Subject implements ActiveRecordInterface
      * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
      * and new objects from the given Propel collection.
      *
-     * @param      Collection $courses A Propel collection.
+     * @param      Collection $coursesRelatedBySubjectId A Propel collection.
      * @param      ConnectionInterface $con Optional connection object
      * @return $this|ChildSubject The current object (for fluent API support)
      */
-    public function setCourses(Collection $courses, ConnectionInterface $con = null)
+    public function setCoursesRelatedBySubjectId(Collection $coursesRelatedBySubjectId, ConnectionInterface $con = null)
     {
-        /** @var ChildCourse[] $coursesToDelete */
-        $coursesToDelete = $this->getCourses(new Criteria(), $con)->diff($courses);
+        /** @var ChildCourse[] $coursesRelatedBySubjectIdToDelete */
+        $coursesRelatedBySubjectIdToDelete = $this->getCoursesRelatedBySubjectId(new Criteria(), $con)->diff($coursesRelatedBySubjectId);
 
         
-        $this->coursesScheduledForDeletion = $coursesToDelete;
+        $this->coursesRelatedBySubjectIdScheduledForDeletion = $coursesRelatedBySubjectIdToDelete;
 
-        foreach ($coursesToDelete as $courseRemoved) {
-            $courseRemoved->setSubject(null);
+        foreach ($coursesRelatedBySubjectIdToDelete as $courseRelatedBySubjectIdRemoved) {
+            $courseRelatedBySubjectIdRemoved->setSubjectRelatedBySubjectId(null);
         }
 
-        $this->collCourses = null;
-        foreach ($courses as $course) {
-            $this->addCourse($course);
+        $this->collCoursesRelatedBySubjectId = null;
+        foreach ($coursesRelatedBySubjectId as $courseRelatedBySubjectId) {
+            $this->addCourseRelatedBySubjectId($courseRelatedBySubjectId);
         }
 
-        $this->collCourses = $courses;
-        $this->collCoursesPartial = false;
+        $this->collCoursesRelatedBySubjectId = $coursesRelatedBySubjectId;
+        $this->collCoursesRelatedBySubjectIdPartial = false;
 
         return $this;
     }
@@ -1133,16 +1430,16 @@ abstract class Subject implements ActiveRecordInterface
      * @return int             Count of related Course objects.
      * @throws PropelException
      */
-    public function countCourses(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    public function countCoursesRelatedBySubjectId(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
     {
-        $partial = $this->collCoursesPartial && !$this->isNew();
-        if (null === $this->collCourses || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collCourses) {
+        $partial = $this->collCoursesRelatedBySubjectIdPartial && !$this->isNew();
+        if (null === $this->collCoursesRelatedBySubjectId || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collCoursesRelatedBySubjectId) {
                 return 0;
             }
 
             if ($partial && !$criteria) {
-                return count($this->getCourses());
+                return count($this->getCoursesRelatedBySubjectId());
             }
 
             $query = ChildCourseQuery::create(null, $criteria);
@@ -1151,11 +1448,11 @@ abstract class Subject implements ActiveRecordInterface
             }
 
             return $query
-                ->filterBySubject($this)
+                ->filterBySubjectRelatedBySubjectId($this)
                 ->count($con);
         }
 
-        return count($this->collCourses);
+        return count($this->collCoursesRelatedBySubjectId);
     }
 
     /**
@@ -1165,44 +1462,44 @@ abstract class Subject implements ActiveRecordInterface
      * @param  ChildCourse $l ChildCourse
      * @return $this|\bdxe\Subject The current object (for fluent API support)
      */
-    public function addCourse(ChildCourse $l)
+    public function addCourseRelatedBySubjectId(ChildCourse $l)
     {
-        if ($this->collCourses === null) {
-            $this->initCourses();
-            $this->collCoursesPartial = true;
+        if ($this->collCoursesRelatedBySubjectId === null) {
+            $this->initCoursesRelatedBySubjectId();
+            $this->collCoursesRelatedBySubjectIdPartial = true;
         }
 
-        if (!$this->collCourses->contains($l)) {
-            $this->doAddCourse($l);
+        if (!$this->collCoursesRelatedBySubjectId->contains($l)) {
+            $this->doAddCourseRelatedBySubjectId($l);
         }
 
         return $this;
     }
 
     /**
-     * @param ChildCourse $course The ChildCourse object to add.
+     * @param ChildCourse $courseRelatedBySubjectId The ChildCourse object to add.
      */
-    protected function doAddCourse(ChildCourse $course)
+    protected function doAddCourseRelatedBySubjectId(ChildCourse $courseRelatedBySubjectId)
     {
-        $this->collCourses[]= $course;
-        $course->setSubject($this);
+        $this->collCoursesRelatedBySubjectId[]= $courseRelatedBySubjectId;
+        $courseRelatedBySubjectId->setSubjectRelatedBySubjectId($this);
     }
 
     /**
-     * @param  ChildCourse $course The ChildCourse object to remove.
+     * @param  ChildCourse $courseRelatedBySubjectId The ChildCourse object to remove.
      * @return $this|ChildSubject The current object (for fluent API support)
      */
-    public function removeCourse(ChildCourse $course)
+    public function removeCourseRelatedBySubjectId(ChildCourse $courseRelatedBySubjectId)
     {
-        if ($this->getCourses()->contains($course)) {
-            $pos = $this->collCourses->search($course);
-            $this->collCourses->remove($pos);
-            if (null === $this->coursesScheduledForDeletion) {
-                $this->coursesScheduledForDeletion = clone $this->collCourses;
-                $this->coursesScheduledForDeletion->clear();
+        if ($this->getCoursesRelatedBySubjectId()->contains($courseRelatedBySubjectId)) {
+            $pos = $this->collCoursesRelatedBySubjectId->search($courseRelatedBySubjectId);
+            $this->collCoursesRelatedBySubjectId->remove($pos);
+            if (null === $this->coursesRelatedBySubjectIdScheduledForDeletion) {
+                $this->coursesRelatedBySubjectIdScheduledForDeletion = clone $this->collCoursesRelatedBySubjectId;
+                $this->coursesRelatedBySubjectIdScheduledForDeletion->clear();
             }
-            $this->coursesScheduledForDeletion[]= $course;
-            $course->setSubject(null);
+            $this->coursesRelatedBySubjectIdScheduledForDeletion[]= $courseRelatedBySubjectId;
+            $courseRelatedBySubjectId->setSubjectRelatedBySubjectId(null);
         }
 
         return $this;
@@ -1214,7 +1511,7 @@ abstract class Subject implements ActiveRecordInterface
      * an identical criteria, it returns the collection.
      * Otherwise if this Subject is new, it will return
      * an empty collection; or if this Subject has previously
-     * been saved, it will retrieve related Courses from storage.
+     * been saved, it will retrieve related CoursesRelatedBySubjectId from storage.
      *
      * This method is protected by default in order to keep the public
      * api reasonable.  You can provide public methods for those you
@@ -1225,12 +1522,12 @@ abstract class Subject implements ActiveRecordInterface
      * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
      * @return ObjectCollection|ChildCourse[] List of ChildCourse objects
      */
-    public function getCoursesJoinProfesor(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    public function getCoursesRelatedBySubjectIdJoinProfesor(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
     {
         $query = ChildCourseQuery::create(null, $criteria);
         $query->joinWith('Profesor', $joinBehavior);
 
-        return $this->getCourses($query, $con);
+        return $this->getCoursesRelatedBySubjectId($query, $con);
     }
 
     /**
@@ -1240,7 +1537,15 @@ abstract class Subject implements ActiveRecordInterface
      */
     public function clear()
     {
+        if (null !== $this->aStudent) {
+            $this->aStudent->removeSubject($this);
+        }
+        if (null !== $this->aCourseRelatedByCourseId) {
+            $this->aCourseRelatedByCourseId->removeSubjectRelatedByCourseId($this);
+        }
         $this->id = null;
+        $this->student_id = null;
+        $this->course_id = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1259,14 +1564,16 @@ abstract class Subject implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
-            if ($this->collCourses) {
-                foreach ($this->collCourses as $o) {
+            if ($this->collCoursesRelatedBySubjectId) {
+                foreach ($this->collCoursesRelatedBySubjectId as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
         } // if ($deep)
 
-        $this->collCourses = null;
+        $this->collCoursesRelatedBySubjectId = null;
+        $this->aStudent = null;
+        $this->aCourseRelatedByCourseId = null;
     }
 
     /**
