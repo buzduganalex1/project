@@ -15,18 +15,20 @@ session_start();
             $Profesors = $query1->findOneByName($_SESSION['user']);
             echo "<table class='NewsFeed' BORDER=3 CELLSPACING=3 CELLPADDING=3>";
             echo "<tr>";
-            echo "<td><a href='' name='Subject'>Subject</a></td>";
-            echo "<td><a href='' name='Initial Class Capacity'>Initial Class Capacity</a></td>";
-            echo "<td><a href='' name='Class Capacity'>Class Capacity</a></td>";
-            echo "<td><a href='' name='StartTime'>StartTime</a></td>";
-            echo "<td><a href='' name='EndTime'>EndTime</a></td>";
-            echo "<td><a href='' name='Students'>More</a></td>";
+            echo "<td>Subject</td>";
+            echo "<td>Class Capacity</td>";
+            echo "<td>Availabe Spots</td>";
+            echo "<td>StartTime</td>";
+            echo "<td>EndTime</td>";
+            echo "<td>More</td>";
             echo "</tr>";
             foreach ($Subscription as $key) {
                 echo "<tr>";
                 if ($key->getProfesorId() == $Profesors->getId()) {
                     $SubjetID=$key->getID();
-                    echo "<td>" . $key->getSubjectName() . "</td>";
+                    $Subject_Name=$key->getSubjectName();
+
+                    echo "<td> <a href='MySubjects.php?SubjectEval={$SubjetID}'>{$Subject_Name}</a></td>";
                     echo "<td>" . $key->getInitialClassCapacity() . "</td>";
                     echo "<td>" . $key->getClassCapacity() . "</td>";
                     echo "<td>" . $key->getStartDate()->format('Y-m-d') . "</td>";
@@ -42,7 +44,11 @@ session_start();
 
             header("Location: InfoSubject.php");
         }
-
+        if(isset($_GET['SubjectEval'])) {
+            $_SESSION['SubjectEval'] = $_GET['SubjectEval'];
+            //echo $_SESSION['SubjectEval'];
+            header("Location: SubjectEval.php");
+        }
         }
         ?>
     </form>

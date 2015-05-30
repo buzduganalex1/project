@@ -260,7 +260,8 @@ CREATE TABLE projecteval_tb
 (
     id NUMBER NOT NULL,
     project_id NUMBER,
-    subscription_id NUMBER
+    subscription_id NUMBER,
+    Nota NUMBER
 );
 
 ALTER TABLE projecteval_tb ADD CONSTRAINT projecteval_tb_pk PRIMARY KEY (id);
@@ -365,5 +366,4 @@ ALTER TABLE pack_tb ADD CONSTRAINT pack_tb_fk_79b0a1
 
 ALTER TABLE pack_tb ADD CONSTRAINT pack_tb_fk_eb3ec5
     FOREIGN KEY (subscription_id) REFERENCES subscription_tb (id);
-
-select * from subject_tb;
+select * from projecteval_tb;

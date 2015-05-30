@@ -128,6 +128,7 @@
     <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
     <column name="project_id" type="Integer"/>
     <column name="subscription_id" type="Integer"/>
+    <column name="Nota" type="Integer"/>
     <foreign-key foreignTable="project_tb">
       <reference foreign="id" local="project_id"/>
     </foreign-key>

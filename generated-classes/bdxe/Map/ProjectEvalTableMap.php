@@ -59,7 +59,7 @@ class ProjectEvalTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 3;
+    const NUM_COLUMNS = 4;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class ProjectEvalTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 3;
+    const NUM_HYDRATE_COLUMNS = 4;
 
     /**
      * the column name for the id field
@@ -87,6 +87,11 @@ class ProjectEvalTableMap extends TableMap
     const COL_SUBSCRIPTION_ID = 'projecteval_tb.subscription_id';
 
     /**
+     * the column name for the Nota field
+     */
+    const COL_NOTA = 'projecteval_tb.Nota';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -98,11 +103,11 @@ class ProjectEvalTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'ProjectId', 'SubscriptionId', ),
-        self::TYPE_CAMELNAME     => array('id', 'projectId', 'subscriptionId', ),
-        self::TYPE_COLNAME       => array(ProjectEvalTableMap::COL_ID, ProjectEvalTableMap::COL_PROJECT_ID, ProjectEvalTableMap::COL_SUBSCRIPTION_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'project_id', 'subscription_id', ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id', 'ProjectId', 'SubscriptionId', 'Nota', ),
+        self::TYPE_CAMELNAME     => array('id', 'projectId', 'subscriptionId', 'nota', ),
+        self::TYPE_COLNAME       => array(ProjectEvalTableMap::COL_ID, ProjectEvalTableMap::COL_PROJECT_ID, ProjectEvalTableMap::COL_SUBSCRIPTION_ID, ProjectEvalTableMap::COL_NOTA, ),
+        self::TYPE_FIELDNAME     => array('id', 'project_id', 'subscription_id', 'Nota', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -112,11 +117,11 @@ class ProjectEvalTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'ProjectId' => 1, 'SubscriptionId' => 2, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'projectId' => 1, 'subscriptionId' => 2, ),
-        self::TYPE_COLNAME       => array(ProjectEvalTableMap::COL_ID => 0, ProjectEvalTableMap::COL_PROJECT_ID => 1, ProjectEvalTableMap::COL_SUBSCRIPTION_ID => 2, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'project_id' => 1, 'subscription_id' => 2, ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'ProjectId' => 1, 'SubscriptionId' => 2, 'Nota' => 3, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'projectId' => 1, 'subscriptionId' => 2, 'nota' => 3, ),
+        self::TYPE_COLNAME       => array(ProjectEvalTableMap::COL_ID => 0, ProjectEvalTableMap::COL_PROJECT_ID => 1, ProjectEvalTableMap::COL_SUBSCRIPTION_ID => 2, ProjectEvalTableMap::COL_NOTA => 3, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'project_id' => 1, 'subscription_id' => 2, 'Nota' => 3, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -140,6 +145,7 @@ class ProjectEvalTableMap extends TableMap
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('project_id', 'ProjectId', 'INTEGER', 'project_tb', 'id', false, null, null);
         $this->addForeignKey('subscription_id', 'SubscriptionId', 'INTEGER', 'subscription_tb', 'id', false, null, null);
+        $this->addColumn('Nota', 'Nota', 'INTEGER', false, null, null);
     } // initialize()
 
     /**
@@ -307,10 +313,12 @@ class ProjectEvalTableMap extends TableMap
             $criteria->addSelectColumn(ProjectEvalTableMap::COL_ID);
             $criteria->addSelectColumn(ProjectEvalTableMap::COL_PROJECT_ID);
             $criteria->addSelectColumn(ProjectEvalTableMap::COL_SUBSCRIPTION_ID);
+            $criteria->addSelectColumn(ProjectEvalTableMap::COL_NOTA);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.project_id');
             $criteria->addSelectColumn($alias . '.subscription_id');
+            $criteria->addSelectColumn($alias . '.Nota');
         }
     }
 

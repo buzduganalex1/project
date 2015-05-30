@@ -61,7 +61,7 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor")
     {
         if(isset($_POST['DueTime'])&& isset($_POST['Subject']))
             if(!isEmpty($_POST['Subject'])) {
-                if (isEmpty($_POST['DueTime']) && !isEmpty($_POST['Description'])) {
+                if (!isEmpty($_POST['DueTime']) && !isEmpty($_POST['Description'])) {
 
                     InsertIntoHomework($_POST['Subject'], $_POST['DueTime'],$_POST['Description']);
                     $_SESSION['AssigmentMessage'] = "<br>Homework Added!<br>";

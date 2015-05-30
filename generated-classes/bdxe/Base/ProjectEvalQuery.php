@@ -23,10 +23,12 @@ use bdxe\Map\ProjectEvalTableMap;
  * @method     ChildProjectEvalQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildProjectEvalQuery orderByProjectId($order = Criteria::ASC) Order by the project_id column
  * @method     ChildProjectEvalQuery orderBySubscriptionId($order = Criteria::ASC) Order by the subscription_id column
+ * @method     ChildProjectEvalQuery orderByNota($order = Criteria::ASC) Order by the Nota column
  *
  * @method     ChildProjectEvalQuery groupById() Group by the id column
  * @method     ChildProjectEvalQuery groupByProjectId() Group by the project_id column
  * @method     ChildProjectEvalQuery groupBySubscriptionId() Group by the subscription_id column
+ * @method     ChildProjectEvalQuery groupByNota() Group by the Nota column
  *
  * @method     ChildProjectEvalQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildProjectEvalQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -47,7 +49,8 @@ use bdxe\Map\ProjectEvalTableMap;
  *
  * @method     ChildProjectEval findOneById(int $id) Return the first ChildProjectEval filtered by the id column
  * @method     ChildProjectEval findOneByProjectId(int $project_id) Return the first ChildProjectEval filtered by the project_id column
- * @method     ChildProjectEval findOneBySubscriptionId(int $subscription_id) Return the first ChildProjectEval filtered by the subscription_id column *
+ * @method     ChildProjectEval findOneBySubscriptionId(int $subscription_id) Return the first ChildProjectEval filtered by the subscription_id column
+ * @method     ChildProjectEval findOneByNota(int $Nota) Return the first ChildProjectEval filtered by the Nota column *
 
  * @method     ChildProjectEval requirePk($key, ConnectionInterface $con = null) Return the ChildProjectEval by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProjectEval requireOne(ConnectionInterface $con = null) Return the first ChildProjectEval matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -55,11 +58,13 @@ use bdxe\Map\ProjectEvalTableMap;
  * @method     ChildProjectEval requireOneById(int $id) Return the first ChildProjectEval filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProjectEval requireOneByProjectId(int $project_id) Return the first ChildProjectEval filtered by the project_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildProjectEval requireOneBySubscriptionId(int $subscription_id) Return the first ChildProjectEval filtered by the subscription_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildProjectEval requireOneByNota(int $Nota) Return the first ChildProjectEval filtered by the Nota column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildProjectEval[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildProjectEval objects based on current ModelCriteria
  * @method     ChildProjectEval[]|ObjectCollection findById(int $id) Return ChildProjectEval objects filtered by the id column
  * @method     ChildProjectEval[]|ObjectCollection findByProjectId(int $project_id) Return ChildProjectEval objects filtered by the project_id column
  * @method     ChildProjectEval[]|ObjectCollection findBySubscriptionId(int $subscription_id) Return ChildProjectEval objects filtered by the subscription_id column
+ * @method     ChildProjectEval[]|ObjectCollection findByNota(int $Nota) Return ChildProjectEval objects filtered by the Nota column
  * @method     ChildProjectEval[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -152,7 +157,7 @@ abstract class ProjectEvalQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, project_id, subscription_id FROM projecteval_tb WHERE id = :p0';
+        $sql = 'SELECT id, project_id, subscription_id, Nota FROM projecteval_tb WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);            
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -367,6 +372,47 @@ abstract class ProjectEvalQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(ProjectEvalTableMap::COL_SUBSCRIPTION_ID, $subscriptionId, $comparison);
+    }
+
+    /**
+     * Filter the query on the Nota column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByNota(1234); // WHERE Nota = 1234
+     * $query->filterByNota(array(12, 34)); // WHERE Nota IN (12, 34)
+     * $query->filterByNota(array('min' => 12)); // WHERE Nota > 12
+     * </code>
+     *
+     * @param     mixed $nota The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildProjectEvalQuery The current query, for fluid interface
+     */
+    public function filterByNota($nota = null, $comparison = null)
+    {
+        if (is_array($nota)) {
+            $useMinMax = false;
+            if (isset($nota['min'])) {
+                $this->addUsingAlias(ProjectEvalTableMap::COL_NOTA, $nota['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($nota['max'])) {
+                $this->addUsingAlias(ProjectEvalTableMap::COL_NOTA, $nota['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(ProjectEvalTableMap::COL_NOTA, $nota, $comparison);
     }
 
     /**
