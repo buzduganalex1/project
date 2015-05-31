@@ -59,7 +59,7 @@ class HomeworkEvalTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 3;
+    const NUM_COLUMNS = 4;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class HomeworkEvalTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 3;
+    const NUM_HYDRATE_COLUMNS = 4;
 
     /**
      * the column name for the id field
@@ -87,6 +87,11 @@ class HomeworkEvalTableMap extends TableMap
     const COL_SUBSCRIPTION_ID = 'homeworkeval_tb.subscription_id';
 
     /**
+     * the column name for the Nota field
+     */
+    const COL_NOTA = 'homeworkeval_tb.Nota';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -98,11 +103,11 @@ class HomeworkEvalTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'HomeworkId', 'SubscriptionId', ),
-        self::TYPE_CAMELNAME     => array('id', 'homeworkId', 'subscriptionId', ),
-        self::TYPE_COLNAME       => array(HomeworkEvalTableMap::COL_ID, HomeworkEvalTableMap::COL_HOMEWORK_ID, HomeworkEvalTableMap::COL_SUBSCRIPTION_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'homework_id', 'subscription_id', ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id', 'HomeworkId', 'SubscriptionId', 'Nota', ),
+        self::TYPE_CAMELNAME     => array('id', 'homeworkId', 'subscriptionId', 'nota', ),
+        self::TYPE_COLNAME       => array(HomeworkEvalTableMap::COL_ID, HomeworkEvalTableMap::COL_HOMEWORK_ID, HomeworkEvalTableMap::COL_SUBSCRIPTION_ID, HomeworkEvalTableMap::COL_NOTA, ),
+        self::TYPE_FIELDNAME     => array('id', 'homework_id', 'subscription_id', 'Nota', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -112,11 +117,11 @@ class HomeworkEvalTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'HomeworkId' => 1, 'SubscriptionId' => 2, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'homeworkId' => 1, 'subscriptionId' => 2, ),
-        self::TYPE_COLNAME       => array(HomeworkEvalTableMap::COL_ID => 0, HomeworkEvalTableMap::COL_HOMEWORK_ID => 1, HomeworkEvalTableMap::COL_SUBSCRIPTION_ID => 2, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'homework_id' => 1, 'subscription_id' => 2, ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'HomeworkId' => 1, 'SubscriptionId' => 2, 'Nota' => 3, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'homeworkId' => 1, 'subscriptionId' => 2, 'nota' => 3, ),
+        self::TYPE_COLNAME       => array(HomeworkEvalTableMap::COL_ID => 0, HomeworkEvalTableMap::COL_HOMEWORK_ID => 1, HomeworkEvalTableMap::COL_SUBSCRIPTION_ID => 2, HomeworkEvalTableMap::COL_NOTA => 3, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'homework_id' => 1, 'subscription_id' => 2, 'Nota' => 3, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
     /**
@@ -140,6 +145,7 @@ class HomeworkEvalTableMap extends TableMap
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('homework_id', 'HomeworkId', 'INTEGER', 'homework_tb', 'id', false, null, null);
         $this->addForeignKey('subscription_id', 'SubscriptionId', 'INTEGER', 'subscription_tb', 'id', false, null, null);
+        $this->addColumn('Nota', 'Nota', 'INTEGER', false, null, null);
     } // initialize()
 
     /**
@@ -307,10 +313,12 @@ class HomeworkEvalTableMap extends TableMap
             $criteria->addSelectColumn(HomeworkEvalTableMap::COL_ID);
             $criteria->addSelectColumn(HomeworkEvalTableMap::COL_HOMEWORK_ID);
             $criteria->addSelectColumn(HomeworkEvalTableMap::COL_SUBSCRIPTION_ID);
+            $criteria->addSelectColumn(HomeworkEvalTableMap::COL_NOTA);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.homework_id');
             $criteria->addSelectColumn($alias . '.subscription_id');
+            $criteria->addSelectColumn($alias . '.Nota');
         }
     }
 

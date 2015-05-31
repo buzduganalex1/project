@@ -106,6 +106,7 @@
     <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
     <column name="homework_id" type="Integer"/>
     <column name="subscription_id" type="Integer"/>
+      <column name="Nota" type="Integer"/>
     <foreign-key foreignTable="homework_tb">
       <reference foreign="id" local="homework_id"/>
     </foreign-key>
@@ -117,6 +118,7 @@
     <column name="id" type="Integer" required="true" autoIncrement="true" primaryKey="true"/>
     <column name="test_id" type="Integer"/>
     <column name="subscription_id" type="Integer"/>
+      <column name="Nota" type="Integer"/>
     <foreign-key foreignTable="test_tb">
       <reference foreign="id" local="test_id"/>
     </foreign-key>

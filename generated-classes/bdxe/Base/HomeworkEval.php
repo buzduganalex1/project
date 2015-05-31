@@ -82,6 +82,12 @@ abstract class HomeworkEval implements ActiveRecordInterface
     protected $subscription_id;
 
     /**
+     * The value for the nota field.
+     * @var        int
+     */
+    protected $nota;
+
+    /**
      * @var        ChildHomework
      */
     protected $aHomework;
@@ -347,6 +353,16 @@ abstract class HomeworkEval implements ActiveRecordInterface
     }
 
     /**
+     * Get the [nota] column value.
+     * 
+     * @return int
+     */
+    public function getNota()
+    {
+        return $this->nota;
+    }
+
+    /**
      * Set the value of [id] column.
      * 
      * @param int $v new value
@@ -415,6 +431,26 @@ abstract class HomeworkEval implements ActiveRecordInterface
     } // setSubscriptionId()
 
     /**
+     * Set the value of [nota] column.
+     * 
+     * @param int $v new value
+     * @return $this|\bdxe\HomeworkEval The current object (for fluent API support)
+     */
+    public function setNota($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->nota !== $v) {
+            $this->nota = $v;
+            $this->modifiedColumns[HomeworkEvalTableMap::COL_NOTA] = true;
+        }
+
+        return $this;
+    } // setNota()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -458,6 +494,9 @@ abstract class HomeworkEval implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : HomeworkEvalTableMap::translateFieldName('SubscriptionId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->subscription_id = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : HomeworkEvalTableMap::translateFieldName('Nota', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->nota = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -466,7 +505,7 @@ abstract class HomeworkEval implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 3; // 3 = HomeworkEvalTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 4; // 4 = HomeworkEvalTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\bdxe\\HomeworkEval'), 0, $e);
@@ -708,6 +747,9 @@ abstract class HomeworkEval implements ActiveRecordInterface
         if ($this->isColumnModified(HomeworkEvalTableMap::COL_SUBSCRIPTION_ID)) {
             $modifiedColumns[':p' . $index++]  = 'subscription_id';
         }
+        if ($this->isColumnModified(HomeworkEvalTableMap::COL_NOTA)) {
+            $modifiedColumns[':p' . $index++]  = 'Nota';
+        }
 
         $sql = sprintf(
             'INSERT INTO homeworkeval_tb (%s) VALUES (%s)',
@@ -727,6 +769,9 @@ abstract class HomeworkEval implements ActiveRecordInterface
                         break;
                     case 'subscription_id':                        
                         $stmt->bindValue($identifier, $this->subscription_id, PDO::PARAM_INT);
+                        break;
+                    case 'Nota':                        
+                        $stmt->bindValue($identifier, $this->nota, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -792,6 +837,9 @@ abstract class HomeworkEval implements ActiveRecordInterface
             case 2:
                 return $this->getSubscriptionId();
                 break;
+            case 3:
+                return $this->getNota();
+                break;
             default:
                 return null;
                 break;
@@ -825,6 +873,7 @@ abstract class HomeworkEval implements ActiveRecordInterface
             $keys[0] => $this->getId(),
             $keys[1] => $this->getHomeworkId(),
             $keys[2] => $this->getSubscriptionId(),
+            $keys[3] => $this->getNota(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -905,6 +954,9 @@ abstract class HomeworkEval implements ActiveRecordInterface
             case 2:
                 $this->setSubscriptionId($value);
                 break;
+            case 3:
+                $this->setNota($value);
+                break;
         } // switch()
 
         return $this;
@@ -939,6 +991,9 @@ abstract class HomeworkEval implements ActiveRecordInterface
         }
         if (array_key_exists($keys[2], $arr)) {
             $this->setSubscriptionId($arr[$keys[2]]);
+        }
+        if (array_key_exists($keys[3], $arr)) {
+            $this->setNota($arr[$keys[3]]);
         }
     }
 
@@ -989,6 +1044,9 @@ abstract class HomeworkEval implements ActiveRecordInterface
         }
         if ($this->isColumnModified(HomeworkEvalTableMap::COL_SUBSCRIPTION_ID)) {
             $criteria->add(HomeworkEvalTableMap::COL_SUBSCRIPTION_ID, $this->subscription_id);
+        }
+        if ($this->isColumnModified(HomeworkEvalTableMap::COL_NOTA)) {
+            $criteria->add(HomeworkEvalTableMap::COL_NOTA, $this->nota);
         }
 
         return $criteria;
@@ -1078,6 +1136,7 @@ abstract class HomeworkEval implements ActiveRecordInterface
     {
         $copyObj->setHomeworkId($this->getHomeworkId());
         $copyObj->setSubscriptionId($this->getSubscriptionId());
+        $copyObj->setNota($this->getNota());
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1224,6 +1283,7 @@ abstract class HomeworkEval implements ActiveRecordInterface
         $this->id = null;
         $this->homework_id = null;
         $this->subscription_id = null;
+        $this->nota = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();

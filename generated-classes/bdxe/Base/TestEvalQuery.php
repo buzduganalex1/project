@@ -23,10 +23,12 @@ use bdxe\Map\TestEvalTableMap;
  * @method     ChildTestEvalQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildTestEvalQuery orderByTestId($order = Criteria::ASC) Order by the test_id column
  * @method     ChildTestEvalQuery orderBySubscriptionId($order = Criteria::ASC) Order by the subscription_id column
+ * @method     ChildTestEvalQuery orderByNota($order = Criteria::ASC) Order by the Nota column
  *
  * @method     ChildTestEvalQuery groupById() Group by the id column
  * @method     ChildTestEvalQuery groupByTestId() Group by the test_id column
  * @method     ChildTestEvalQuery groupBySubscriptionId() Group by the subscription_id column
+ * @method     ChildTestEvalQuery groupByNota() Group by the Nota column
  *
  * @method     ChildTestEvalQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildTestEvalQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -47,7 +49,8 @@ use bdxe\Map\TestEvalTableMap;
  *
  * @method     ChildTestEval findOneById(int $id) Return the first ChildTestEval filtered by the id column
  * @method     ChildTestEval findOneByTestId(int $test_id) Return the first ChildTestEval filtered by the test_id column
- * @method     ChildTestEval findOneBySubscriptionId(int $subscription_id) Return the first ChildTestEval filtered by the subscription_id column *
+ * @method     ChildTestEval findOneBySubscriptionId(int $subscription_id) Return the first ChildTestEval filtered by the subscription_id column
+ * @method     ChildTestEval findOneByNota(int $Nota) Return the first ChildTestEval filtered by the Nota column *
 
  * @method     ChildTestEval requirePk($key, ConnectionInterface $con = null) Return the ChildTestEval by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildTestEval requireOne(ConnectionInterface $con = null) Return the first ChildTestEval matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -55,11 +58,13 @@ use bdxe\Map\TestEvalTableMap;
  * @method     ChildTestEval requireOneById(int $id) Return the first ChildTestEval filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildTestEval requireOneByTestId(int $test_id) Return the first ChildTestEval filtered by the test_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildTestEval requireOneBySubscriptionId(int $subscription_id) Return the first ChildTestEval filtered by the subscription_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildTestEval requireOneByNota(int $Nota) Return the first ChildTestEval filtered by the Nota column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildTestEval[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildTestEval objects based on current ModelCriteria
  * @method     ChildTestEval[]|ObjectCollection findById(int $id) Return ChildTestEval objects filtered by the id column
  * @method     ChildTestEval[]|ObjectCollection findByTestId(int $test_id) Return ChildTestEval objects filtered by the test_id column
  * @method     ChildTestEval[]|ObjectCollection findBySubscriptionId(int $subscription_id) Return ChildTestEval objects filtered by the subscription_id column
+ * @method     ChildTestEval[]|ObjectCollection findByNota(int $Nota) Return ChildTestEval objects filtered by the Nota column
  * @method     ChildTestEval[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -152,7 +157,7 @@ abstract class TestEvalQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, test_id, subscription_id FROM testeval_tb WHERE id = :p0';
+        $sql = 'SELECT id, test_id, subscription_id, Nota FROM testeval_tb WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);            
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -367,6 +372,47 @@ abstract class TestEvalQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(TestEvalTableMap::COL_SUBSCRIPTION_ID, $subscriptionId, $comparison);
+    }
+
+    /**
+     * Filter the query on the Nota column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByNota(1234); // WHERE Nota = 1234
+     * $query->filterByNota(array(12, 34)); // WHERE Nota IN (12, 34)
+     * $query->filterByNota(array('min' => 12)); // WHERE Nota > 12
+     * </code>
+     *
+     * @param     mixed $nota The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildTestEvalQuery The current query, for fluid interface
+     */
+    public function filterByNota($nota = null, $comparison = null)
+    {
+        if (is_array($nota)) {
+            $useMinMax = false;
+            if (isset($nota['min'])) {
+                $this->addUsingAlias(TestEvalTableMap::COL_NOTA, $nota['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($nota['max'])) {
+                $this->addUsingAlias(TestEvalTableMap::COL_NOTA, $nota['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(TestEvalTableMap::COL_NOTA, $nota, $comparison);
     }
 
     /**

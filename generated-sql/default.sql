@@ -220,7 +220,8 @@ CREATE TABLE homeworkeval_tb
 (
     id NUMBER NOT NULL,
     homework_id NUMBER,
-    subscription_id NUMBER
+    subscription_id NUMBER,
+    Nota NUMBER
 );
 
 ALTER TABLE homeworkeval_tb ADD CONSTRAINT homeworkeval_tb_pk PRIMARY KEY (id);
@@ -240,7 +241,8 @@ CREATE TABLE testeval_tb
 (
     id NUMBER NOT NULL,
     test_id NUMBER,
-    subscription_id NUMBER
+    subscription_id NUMBER,
+    Nota NUMBER
 );
 
 ALTER TABLE testeval_tb ADD CONSTRAINT testeval_tb_pk PRIMARY KEY (id);
@@ -366,4 +368,4 @@ ALTER TABLE pack_tb ADD CONSTRAINT pack_tb_fk_79b0a1
 
 ALTER TABLE pack_tb ADD CONSTRAINT pack_tb_fk_eb3ec5
     FOREIGN KEY (subscription_id) REFERENCES subscription_tb (id);
-select * from projecteval_tb;
+select * from TetsEval_TB

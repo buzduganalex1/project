@@ -12,6 +12,12 @@ include_once("Composer.php");
 <?php
 $Array=array("Type","Subject","Name","Size","Dificulty","Students");
 session_start();
+if(isset($_SESSION['ProjectCreatedMessage']))
+{
+    echo $_SESSION['ProjectCreatedMessage'];
+    $_SESSION['ProjectCreatedMessage']=null;
+
+}
 if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
     if(isset($_SESSION['SubjectEval']))
     {
@@ -28,6 +34,7 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
         foreach($Project_query->findByCourseId($Course_id) as $project)
         {
             $Project_ID=$project->getId();
+            $Project="Project";
 
             echo "<tr>";
             echo "<td>Proiect</td>";
@@ -35,13 +42,14 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
             echo "<td>".$project->getTitlu()."</td>";
             echo "<td>".$project->getNumarParticipanti()."</td>";
             echo "<td>".$project->getDificultate()."</td>";
-            echo "<td> <a href='SubjectEval.php?Project_id={$Project_ID}'>See Studens!</a></td>";
+            echo "<td> <a href='SubjectEval.php?Project_id={$Project_ID}&Type={$Project}&Course_id={$Course_id}'>See Studens!</a></td>";
             echo "</tr>";
         }
         //Homeworks
         foreach($Homework_query->findByCourseId($Course_id) as $homework)
         {
             $Homework_ID=$homework->getId();
+            $Homework="Homework";
 
             echo "<tr>";
             echo "<td>Homework</td>";
@@ -49,13 +57,14 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
             echo "<td>None</td>";
             echo "<td>One</td>";
             echo "<td>None</td>";
-            echo "<td> <a href='SubjectEval.php?Homework_id={$Homework_ID}'>See Studens!</a></td>";
+            echo "<td> <a href='SubjectEval.php?Homework_id={$Homework_ID}&Type={$Homework}&Course_id={$Course_id}'>See Studens!</a></td>";
             echo "</tr>";
         }
         //Tests
         foreach($Test_query->findByCourseId($Course_id) as $test)
         {
             $Test_ID=$test->getId();
+            $Test="Test";
 
             echo "<tr>";
             echo "<td>Test</td>";
@@ -63,11 +72,35 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
             echo "<td>None</td>";
             echo "<td>One</td>";
             echo "<td>None</td>";
-            echo "<td> <a href='SubjectEval.php?Test_id={$Test_ID}'>See Studens!</a></td>";
+            echo "<td> <a href='SubjectEval.php?Test_id={$Test_ID}&Type={$Test}&Course_id={$Course_id}'>See Studens!</a></td>";
             echo "</tr>";
         }
         //
         echo "</table>";
+    }
+
+    if(isset($_GET['Project_id'])){
+
+        $_SESSION['Subject_id']=$_GET['Project_id'];
+        $_SESSION['Subject_Type']=$_GET['Type'];
+        $_SESSION['Course_id']=$_GET['Course_id'];
+        header("Location: StudentEval.php");
+    }
+    if(isset($_GET['Test_id'])){
+
+        $_SESSION['Subject_id']=$_GET['Test_id'];
+        $_SESSION['Subject_Type']=$_GET['Type'];
+        $_SESSION['Course_id']=$_GET['Course_id'];
+        echo $_SESSION['Subject_id'];
+
+        header("Location: StudentEval.php");
+    }
+    if(isset($_GET['Homework_id'])){
+
+        $_SESSION['Subject_id']=$_GET['Homework_id'];
+        $_SESSION['Subject_Type']=$_GET['Type'];
+        $_SESSION['Course_id']=$_GET['Course_id'];
+        header("Location: StudentEval.php");
     }
 }
 
