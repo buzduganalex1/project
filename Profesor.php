@@ -13,6 +13,7 @@
 			<input type="submit" name="LogOut" value="Log out">
             <input type="submit" name="CreateNewSubject" value="New Class">
             <input type="submit" name="MySubjects" value="MySubjects">
+            <input type="submit" name="Catalog" value="Catalog">
 		</form>
 	</body>
 </html>
@@ -125,6 +126,11 @@ session_start();
          $_SESSION['type']=NULL;
          header("Location: Login.php");
      }
+
+    if(isset($_POST['Catalog'])) {
+        header("Location: Catalog.php");
+    }
+
 
      if(isset($_POST['CreateNewSubject']))
      {
@@ -253,17 +259,4 @@ function CreateTable($Array,$Name){
  }
 
 
-
- /*$info="Tema asta este pentru baietii din cartier<br>Scrieti un eseu sub forma de rap in care sa descrieti viata pe strada.<br>";
- $TW_Assigment=new Assigment("TW",3,"Easy","SMTP","1/2/2012");
- $TW_Test=new Test("TW","1/2/2013");
- $TW_Tema=new Tema("TW",'1/2/2022',$info);
-
- $TW_Assigment->setNota(5);
- $TW_Test->setNota(10);
- $TW_Tema->setNota(6);
-
- $TW_Assigment->Afisare();
- $TW_Test->Afisare();
- $TW_Tema->Afisare();*/
 ?>

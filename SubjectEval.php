@@ -42,7 +42,7 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
             echo "<td>".$project->getTitlu()."</td>";
             echo "<td>".$project->getNumarParticipanti()."</td>";
             echo "<td>".$project->getDificultate()."</td>";
-            echo "<td> <a href='SubjectEval.php?Project_id={$Project_ID}&Type={$Project}'>See Studens!</a></td>";
+            echo "<td> <a href='SubjectEval.php?Project_id={$Project_ID}&Type={$Project}&Course_id={$Course_id}'>See Studens!</a></td>";
             echo "</tr>";
         }
         //Homeworks
@@ -57,7 +57,7 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
             echo "<td>None</td>";
             echo "<td>One</td>";
             echo "<td>None</td>";
-            echo "<td> <a href='SubjectEval.php?Homework_id={$Homework_ID}&Type={$Homework}'>See Studens!</a></td>";
+            echo "<td> <a href='SubjectEval.php?Homework_id={$Homework_ID}&Type={$Homework}&Course_id={$Course_id}'>See Studens!</a></td>";
             echo "</tr>";
         }
         //Tests
@@ -72,7 +72,7 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
             echo "<td>None</td>";
             echo "<td>One</td>";
             echo "<td>None</td>";
-            echo "<td> <a href='SubjectEval.php?Test_id={$Test_ID}&Type={$Test}'>See Studens!</a></td>";
+            echo "<td> <a href='SubjectEval.php?Test_id={$Test_ID}&Type={$Test}&Course_id={$Course_id}'>See Studens!</a></td>";
             echo "</tr>";
         }
         //
@@ -83,12 +83,14 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
 
         $_SESSION['Subject_id']=$_GET['Project_id'];
         $_SESSION['Subject_Type']=$_GET['Type'];
+        $_SESSION['Course_id']=$_GET['Course_id'];
         header("Location: StudentEval.php");
     }
     if(isset($_GET['Test_id'])){
 
         $_SESSION['Subject_id']=$_GET['Test_id'];
         $_SESSION['Subject_Type']=$_GET['Type'];
+        $_SESSION['Course_id']=$_GET['Course_id'];
         echo $_SESSION['Subject_id'];
 
         header("Location: StudentEval.php");
@@ -97,6 +99,7 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
 
         $_SESSION['Subject_id']=$_GET['Homework_id'];
         $_SESSION['Subject_Type']=$_GET['Type'];
+        $_SESSION['Course_id']=$_GET['Course_id'];
         header("Location: StudentEval.php");
     }
 }

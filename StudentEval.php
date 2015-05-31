@@ -17,6 +17,8 @@ $Student_id_list=array();
         $Course_query=new bdxe\CourseQuery();
         $Subscription_query=new \bdxe\SubscriptionQuery();
         $Student_query=new bdxe\StudentQuery();
+        $ProjectEvalQuery=new bdxe\ProjectEvalQuery();
+
         if ($_SESSION['Subject_Type'] == "Project") {
             $Project_query=new \bdxe\ProjectQuery();
             $Students=$Student_query->find();
@@ -81,7 +83,7 @@ $Student_id_list=array();
         }
 
         if ($_SESSION['Subject_Type'] == "Test") {
-            
+
             $Test_query=new \bdxe\ProjectQuery();
             $Students=$Student_query->find();
 
@@ -121,87 +123,194 @@ $Student_id_list=array();
                     if($student->getId()==$student_id) {
                         $Student_name=$student->getName();
                         if(isset($_POST[$student_id])) {
+                            $Available=true;
                             echo $_SESSION['Subject_Type'];
+                            if($_SESSION['Subject_Type']=='Project') {
+                                $Course_id = $_SESSION['Course_id'];
+                                $Course_query->findOneBySubjectName($_SESSION['Subject_Type']);
+                                $CurrentSubscription_id = null;
+                                $CurrentCourse_id = null;
+                                $CurrentProjectEval_id = null;
 
-                            if($_SESSION['Subject_Type']=="Project") {
+                                foreach ($Subscription_query->find() as $subscription) {
+                                    if ($subscription->getStudentId() == $student_id && $subscription->getCourseId() == $Course_id) {
+                                        $CurrentSubscription_id = $subscription->getId();
+                                        $CurrentCourse_id = $subscription->getCourseId();
 
-                                $Subscription_id=$Subscriptions_id_List[array_search($student_id, array_keys($Student_id_list))];
-                                $Availabe=true;
-                                $Project=new bdxe\ProjectEvalQuery();
-                                $Projects=$Project->find();
-
-                                foreach($Projects as $key)
-                                {
-                                        if($key->getProjectId()==$_SESSION['Subject_id'] && $key->getSubscriptionId()==$Subscription_id) {
-                                            $Availabe=false;
+                                        break;
+                                    }
+                                }
+                                if (isset($CurrentSubscription_id)) {
+                                    foreach ($ProjectEvalQuery->find() as $key) {
+                                        if ($key->getSubscriptionId() == $CurrentSubscription_id && $key->getProjectId() == $CurrentCourse_id) {
+                                            $CurrentProjectEval_id = $key->getId();
+                                            $Available = false;
+                                            break;
                                         }
+                                    }
+                                    if ($_POST[$student_id] != null) {
+                                        if ($Available) {
+                                            $ProjectEval = new bdxe\ProjectEval();
+                                            $ProjectEval->setNota($_POST[$student_id]);
+                                            $ProjectEval->setSubscriptionId($CurrentSubscription_id);
+                                            $ProjectEval->setProjectId($_SESSION['Subject_id']);
+                                            $ProjectEval->save();
 
-                                }
-                                if($Availabe) {
-                                    $project = new bdxe\ProjectEval();
-                                    $project->setNota($_POST[$student_id]);
-                                    $project->setProjectId($_SESSION['Subject_id']);
-                                    $project->setSubscriptionId($Subscriptions_id_List[array_search($student_id, array_keys($Student_id_list))]);
-                                    $project->save();
-                                    $_SESSION['ProjectCreatedMessage'] = "Studentul " . $Student_name . " a fost notat cu succes la proiect cu nota " . $_POST[$student_id];
-                                }
-                                else {
-                                    $_SESSION['ProjectCreatedMessage'] = "Studentul a fost deja notat la aceast proiect!";
+                                            echo "Subject Type: " . $_SESSION['Subject_Type'] . " ";
+                                            echo "Student_Id: " . $student_id;
+                                            echo "$Course_id: " . $_SESSION['Course_id'];
+                                            echo "Subscription id: " . $CurrentSubscription_id;
+                                            echo "<br>";
+                                        } else {
+                                            $Students = $Student_query->find();
+
+                                            foreach ($Students as $student) {
+                                                if ($student->getId() == $student_id) {
+                                                    echo "Nota studentului {$Student_name} este deja setata!";
+                                                    echo "<br>";
+                                                    break;
+                                                }
+                                            }
+                                            $Available = true;
+                                        }
+                                    } else {
+                                        $Students = $Student_query->find();
+                                        foreach ($Students as $student) {
+                                            if ($student->getId() == $student_id) {
+                                                echo "Nota studentului {$Student_name} nu este setata!";
+                                                echo "<br>";
+                                                break;
+                                            }
+                                        }
+                                    }
+
                                 }
                             }
+                            if($_SESSION['Subject_Type']=='Homework') {
+                                $Course_id = $_SESSION['Course_id'];
+                                $Course_query->findOneBySubjectName($_SESSION['Subject_Type']);
+                                $CurrentSubscription_id = null;
+                                $CurrentCourse_id = null;
+                                $CurrentHomeWorkEval_id = null;
+                                $HomeworkEvalQuery=new bdxe\HomeworkEvalQuery();
 
-                            if($_SESSION['Subject_Type']=="Homework") {
-                                $homework = new bdxe\HomeworkEval();
-                                $Homework_query=new bdxe\HomeworkEvalQuery();
-                                $Homework=$Homework_query->find();
-                                $Subscription_id=$Subscriptions_id_List[array_search($student_id, array_keys($Student_id_list))];
+                                foreach ($Subscription_query->find() as $subscription) {
+                                    if ($subscription->getStudentId() == $student_id && $subscription->getCourseId() == $Course_id) {
+                                        $CurrentSubscription_id = $subscription->getId();
+                                        $CurrentCourse_id = $subscription->getCourseId();
 
-                                $Availabe=true;
-                                foreach($Homework as $key)
-                                {
-                                    if($key->getHomeworkId()==$_SESSION['Subject_id'] && $key->getSubscriptionId()==$Subscription_id) {
-                                        $Availabe=false;
+                                        break;
                                     }
                                 }
-                                if($Availabe) {
-                                    $homework->setNota($_POST[$student_id]);
-                                    $homework->setHomeworkId($_SESSION['Subject_id']);
-                                    $homework->setSubscriptionId($Subscription_id);
-                                    $homework->save();
-                                    $_SESSION['ProjectCreatedMessage'] = "Studentul " . $Student_name . " a fost notat cu succes la tema cu nota " . $_POST[$student_id];
-                                }
-                                else
-                                {
-                                    $_SESSION['ProjectCreatedMessage']="Studentul a fost deja notat la aceasta tema!";
+                                if (isset($CurrentSubscription_id)) {
+                                    foreach ($HomeworkEvalQuery->find() as $key) {
+                                        if ($key->getSubscriptionId() == $CurrentSubscription_id && $key->getHomeworkId() == $CurrentCourse_id) {
+                                            $CurrentProjectEval_id = $key->getId();
+                                            $Available = false;
+                                            break;
+                                        }
+                                    }
+                                    if ($_POST[$student_id] != null) {
+                                        if ($Available) {
+                                            $HomeworkEval = new bdxe\HomeworkEval();
+                                            $HomeworkEval->setNota($_POST[$student_id]);
+                                            $HomeworkEval->setSubscriptionId($CurrentSubscription_id);
+                                            $HomeworkEval->setHomeworkId($_SESSION['Subject_id']);
+                                            $HomeworkEval->save();
+
+                                            echo "Subject Type: " . $_SESSION['Subject_Type'] . " ";
+                                            echo "Student_Id: " . $student_id;
+                                            echo "$Course_id: " . $_SESSION['Course_id'];
+                                            echo "Subscription id: " . $CurrentSubscription_id;
+                                            echo "<br>";
+                                        } else {
+                                            $Students = $Student_query->find();
+
+                                            foreach ($Students as $student) {
+                                                if ($student->getId() == $student_id) {
+                                                    echo "Nota studentului {$Student_name} este deja setata!";
+                                                    echo "<br>";
+                                                    break;
+                                                }
+                                            }
+                                            $Available = true;
+                                        }
+                                    } else {
+                                        $Students = $Student_query->find();
+                                        foreach ($Students as $student) {
+                                            if ($student->getId() == $student_id) {
+                                                echo "Nota studentului {$Student_name} nu este setata!";
+                                                echo "<br>";
+                                                break;
+                                            }
+                                        }
+                                    }
+
                                 }
                             }
+                            if($_SESSION['Subject_Type']=='Test') {
+                                $Course_id = $_SESSION['Course_id'];
+                                $Course_query->findOneBySubjectName($_SESSION['Subject_Type']);
+                                $CurrentSubscription_id = null;
+                                $CurrentCourse_id = null;
+                                $CurrentTestEval_id = null;
+                                $TestEvalQuery=new bdxe\TestEvalQuery();
 
-                            if($_SESSION['Subject_Type']=="Test") {
+                                foreach ($Subscription_query->find() as $subscription) {
+                                    if ($subscription->getStudentId() == $student_id && $subscription->getCourseId() == $Course_id) {
+                                        $CurrentSubscription_id = $subscription->getId();
+                                        $CurrentCourse_id = $subscription->getCourseId();
 
-                                $Subscription_id=$Subscriptions_id_List[array_search($student_id, array_keys($Student_id_list))];
-                                $Test_query=new bdxe\TestEvalQuery();
-                                $Tests=$Test_query->find();
-
-                                $Availabe=true;
-                                foreach($Tests as $key)
-                                {
-                                    if($key->getTestId()==$_SESSION['Subject_id'] && $key->getSubscriptionId()==$Subscription_id) {
-                                        $Availabe=false;
+                                        break;
                                     }
                                 }
-                                if($Availabe) {
-                                    $test = new bdxe\TestEval();
-                                    $test->setNota($_POST[$student_id]);
-                                    $test->setTestId($_SESSION['Subject_id']);
-                                    $test->setSubscriptionId($Subscription_id);
-                                    $test->save();
-                                    $_SESSION['ProjectCreatedMessage'] = "Studentul " . $Student_name . " a fost notat cu succes la test cu nota " . $_POST[$student_id];
-                                }
-                                else{
-                                    $_SESSION['ProjectCreatedMessage']="Studentul a fost notat deja la acest test!";
+                                if (isset($CurrentSubscription_id)) {
+                                    foreach ($TestEvalQuery->find() as $key) {
+                                        if ($key->getSubscriptionId() == $CurrentSubscription_id && $key->getTestId() == $CurrentCourse_id) {
+                                            $CurrentTestEval_id = $key->getId();
+                                            $Available = false;
+                                            break;
+                                        }
+                                    }
+                                    if ($_POST[$student_id] != null) {
+                                        if ($Available) {
+                                            $TestEval = new bdxe\TestEval();
+                                            $TestEval->setNota($_POST[$student_id]);
+                                            $TestEval->setSubscriptionId($CurrentSubscription_id);
+                                            $TestEval->setTestId($_SESSION['Subject_id']);
+                                            $TestEval->save();
+
+                                            echo "Subject Type: " . $_SESSION['Subject_Type'] . " ";
+                                            echo "Student_Id: " . $student_id;
+                                            echo "$Course_id: " . $_SESSION['Course_id'];
+                                            echo "Subscription id: " . $CurrentSubscription_id;
+                                            echo "<br>";
+                                        } else {
+                                            $Students = $Student_query->find();
+
+                                            foreach ($Students as $student) {
+                                                if ($student->getId() == $student_id) {
+                                                    echo "Nota studentului {$Student_name} este deja setata!";
+                                                    echo "<br>";
+                                                    break;
+                                                }
+                                            }
+                                            $Available = true;
+                                        }
+                                    } else {
+                                        $Students = $Student_query->find();
+                                        foreach ($Students as $student) {
+                                            if ($student->getId() == $student_id) {
+                                                echo "Nota studentului {$Student_name} nu este setata!";
+                                                echo "<br>";
+                                                break;
+                                            }
+                                        }
+                                    }
+
                                 }
                             }
-                            header("Location: SubjectEval.php");
+
                         }
 
                 }
