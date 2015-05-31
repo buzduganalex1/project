@@ -23,10 +23,12 @@ use bdxe\Map\HomeworkEvalTableMap;
  * @method     ChildHomeworkEvalQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildHomeworkEvalQuery orderByHomeworkId($order = Criteria::ASC) Order by the homework_id column
  * @method     ChildHomeworkEvalQuery orderBySubscriptionId($order = Criteria::ASC) Order by the subscription_id column
+ * @method     ChildHomeworkEvalQuery orderByNota($order = Criteria::ASC) Order by the Nota column
  *
  * @method     ChildHomeworkEvalQuery groupById() Group by the id column
  * @method     ChildHomeworkEvalQuery groupByHomeworkId() Group by the homework_id column
  * @method     ChildHomeworkEvalQuery groupBySubscriptionId() Group by the subscription_id column
+ * @method     ChildHomeworkEvalQuery groupByNota() Group by the Nota column
  *
  * @method     ChildHomeworkEvalQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildHomeworkEvalQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -47,7 +49,8 @@ use bdxe\Map\HomeworkEvalTableMap;
  *
  * @method     ChildHomeworkEval findOneById(int $id) Return the first ChildHomeworkEval filtered by the id column
  * @method     ChildHomeworkEval findOneByHomeworkId(int $homework_id) Return the first ChildHomeworkEval filtered by the homework_id column
- * @method     ChildHomeworkEval findOneBySubscriptionId(int $subscription_id) Return the first ChildHomeworkEval filtered by the subscription_id column *
+ * @method     ChildHomeworkEval findOneBySubscriptionId(int $subscription_id) Return the first ChildHomeworkEval filtered by the subscription_id column
+ * @method     ChildHomeworkEval findOneByNota(int $Nota) Return the first ChildHomeworkEval filtered by the Nota column *
 
  * @method     ChildHomeworkEval requirePk($key, ConnectionInterface $con = null) Return the ChildHomeworkEval by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildHomeworkEval requireOne(ConnectionInterface $con = null) Return the first ChildHomeworkEval matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -55,11 +58,13 @@ use bdxe\Map\HomeworkEvalTableMap;
  * @method     ChildHomeworkEval requireOneById(int $id) Return the first ChildHomeworkEval filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildHomeworkEval requireOneByHomeworkId(int $homework_id) Return the first ChildHomeworkEval filtered by the homework_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildHomeworkEval requireOneBySubscriptionId(int $subscription_id) Return the first ChildHomeworkEval filtered by the subscription_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildHomeworkEval requireOneByNota(int $Nota) Return the first ChildHomeworkEval filtered by the Nota column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildHomeworkEval[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildHomeworkEval objects based on current ModelCriteria
  * @method     ChildHomeworkEval[]|ObjectCollection findById(int $id) Return ChildHomeworkEval objects filtered by the id column
  * @method     ChildHomeworkEval[]|ObjectCollection findByHomeworkId(int $homework_id) Return ChildHomeworkEval objects filtered by the homework_id column
  * @method     ChildHomeworkEval[]|ObjectCollection findBySubscriptionId(int $subscription_id) Return ChildHomeworkEval objects filtered by the subscription_id column
+ * @method     ChildHomeworkEval[]|ObjectCollection findByNota(int $Nota) Return ChildHomeworkEval objects filtered by the Nota column
  * @method     ChildHomeworkEval[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -152,7 +157,7 @@ abstract class HomeworkEvalQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, homework_id, subscription_id FROM homeworkeval_tb WHERE id = :p0';
+        $sql = 'SELECT id, homework_id, subscription_id, Nota FROM homeworkeval_tb WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);            
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -367,6 +372,47 @@ abstract class HomeworkEvalQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(HomeworkEvalTableMap::COL_SUBSCRIPTION_ID, $subscriptionId, $comparison);
+    }
+
+    /**
+     * Filter the query on the Nota column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByNota(1234); // WHERE Nota = 1234
+     * $query->filterByNota(array(12, 34)); // WHERE Nota IN (12, 34)
+     * $query->filterByNota(array('min' => 12)); // WHERE Nota > 12
+     * </code>
+     *
+     * @param     mixed $nota The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildHomeworkEvalQuery The current query, for fluid interface
+     */
+    public function filterByNota($nota = null, $comparison = null)
+    {
+        if (is_array($nota)) {
+            $useMinMax = false;
+            if (isset($nota['min'])) {
+                $this->addUsingAlias(HomeworkEvalTableMap::COL_NOTA, $nota['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($nota['max'])) {
+                $this->addUsingAlias(HomeworkEvalTableMap::COL_NOTA, $nota['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(HomeworkEvalTableMap::COL_NOTA, $nota, $comparison);
     }
 
     /**

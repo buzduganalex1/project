@@ -12,6 +12,12 @@ include_once("Composer.php");
 <?php
 $Array=array("Type","Subject","Name","Size","Dificulty","Students");
 session_start();
+if(isset($_SESSION['ProjectCreatedMessage']))
+{
+    echo $_SESSION['ProjectCreatedMessage'];
+    $_SESSION['ProjectCreatedMessage']=null;
+
+}
 if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
     if(isset($_SESSION['SubjectEval']))
     {
@@ -74,16 +80,21 @@ if(isset($_SESSION['user']) && $_SESSION['type']=="Profesor") {
     }
 
     if(isset($_GET['Project_id'])){
+
         $_SESSION['Subject_id']=$_GET['Project_id'];
         $_SESSION['Subject_Type']=$_GET['Type'];
         header("Location: StudentEval.php");
     }
-    if(isset($_GET['Test_id]'])){
+    if(isset($_GET['Test_id'])){
+
         $_SESSION['Subject_id']=$_GET['Test_id'];
         $_SESSION['Subject_Type']=$_GET['Type'];
+        echo $_SESSION['Subject_id'];
+
         header("Location: StudentEval.php");
     }
     if(isset($_GET['Homework_id'])){
+
         $_SESSION['Subject_id']=$_GET['Homework_id'];
         $_SESSION['Subject_Type']=$_GET['Type'];
         header("Location: StudentEval.php");
