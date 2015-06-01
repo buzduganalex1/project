@@ -1,15 +1,28 @@
+<?php include_once "Navigation.php" ?>
+<?php include_once "Composer.php" ?>
+
 <?php session_start() ?>
-<form>
-    <pre>Username </pre><input type='text' name='Username' value=''><br>
-    <pre>Old password</pre><input type='text' name='OldPassword' value=''><br>
-    <pre>New password</pre><input type='text' name='NewPassword' value=''><br>
-    <pre>Repeat new password</pre><input type='text' name='RepeatNewUsername' value=''><br><br>
-    <input type="submit" name="" value="Submit">
+
+<form method="post">
+        <input type="submit" name="changeEmail" value="change Email">
+        <input type="submit" name="changePassword" value="Change Password">
 </form>
 
+    <form method="post">
 <?php
-if (isset($_POST['SubmitChanges'])){
-    $student = new bdxe\StudentQuery();
+
+
+if (isset($_POST['changeEmail'])){
+    header("Location: ChangeEmail.php");
 }
 
+
+
+if (isset($_POST['changePassword'])){
+    header("Location: ChangePassword.php");
+}
+
+
 ?>
+
+</form>
